@@ -53,25 +53,6 @@ git clone https://github.com/moorada/RiskBattleSimulator.git
 
 That's it! No build process, no dependencies to install.
 
-## 🌐 Deploy to GitHub Pages
-
-1. Create a new repository on GitHub called `risk-battle-simulator`
-2. Push your code:
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/moorada/RiskBattleSimulator.git
-git push -u origin main
-```
-
-3. Enable GitHub Pages:
-   - Go to repository **Settings** → **Pages**
-   - Under **Source**, select **main** branch
-   - Click **Save**
-   - Your site will be live at `https://moorada.github.io/RiskBattleSimulator/`
-
 ## 🎯 Game Rules
 
 ### Dice Mechanics
@@ -103,7 +84,6 @@ git push -u origin main
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 
 
 ⭐ **Star this repo if you find it useful!** ⭐
