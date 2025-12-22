@@ -99,68 +99,12 @@ git push -u origin main
 - **Tailwind CSS** (CDN) - Styling
 - **Vanilla JavaScript** - Game logic and interactivity
 
-## 📁 Project Structure
-
-```
-risk-battle-simulator/
-├── index.html          # Complete single-file application
-├── README.md           # This file
-└── LICENSE             # MIT License
-```
-
-## 🎨 Customization
-
-The entire app is in a single HTML file, making it easy to customize:
-- Edit color schemes in the Tailwind classes
-- Modify initial army counts in the JavaScript
-- Change dice display styles
-- Adjust battle log appearance
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🎲 Future Enhancements
 
-- [ ] Statistics tracker (win rates, average casualties)
-- [ ] Multiple battle simulation with probability calculator
-- [ ] Export battle results to CSV/JSON
-- [ ] Different Risk variants (Risiko with 3 defense dice, other versions)
-- [ ] Animated dice roll effects
-- [ ] Sound effects toggle
-- [ ] Dark/light theme toggle
-- [ ] Battle replay functionality
-
-## 💡 Why This Project?
-
-Perfect for:
-- Risk players who want to calculate odds
-- Game night strategy planning
-- Teaching probability concepts
-- Quick battle resolution without physical dice
-
-## 🙏 Acknowledgments
-
-- Inspired by the classic Risk board game
-- Built with [Tailwind CSS](https://tailwindcss.com/)
-- Icons inspired by modern UI design
-
-## 📧 Contact
-
-Your Name - [@yourhandle](https://twitter.com/yourhandle)
-
-Project Link: [https://github.com/moorada/RiskBattleSimulator](https://github.com/moorada/RiskBattleSimulator)
-
----
 
 ⭐ **Star this repo if you find it useful!** ⭐
 
