@@ -675,10 +675,19 @@
             box-shadow: 0 10px 24px rgba(62, 86, 130, 0.38);
         }
 
+        .btn-log {
+            background: linear-gradient(140deg, #8f7ed2, #5543a8);
+            box-shadow: 0 10px 24px rgba(85, 67, 168, 0.34);
+        }
+
         .btn-start {
             background: linear-gradient(140deg, #7be588, #2fa54e);
             box-shadow: 0 10px 24px rgba(47, 165, 78, 0.34);
             color: #082113;
+        }
+
+        .mobile-only {
+            display: none;
         }
 
         .banner {
@@ -869,8 +878,8 @@
                 margin-bottom: 0;
                 min-height: 0;
                 height: 100%;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto 1fr;
+                grid-template-columns: 1fr;
+                grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
                 gap: 8px;
             }
 
@@ -879,13 +888,21 @@
             }
 
             body.battle-mode .center-core {
-                order: -1;
-                grid-column: 1 / -1;
+                order: 2;
+                grid-column: auto;
                 padding: 8px;
                 min-height: 0;
                 display: grid;
                 grid-template-rows: auto 1fr;
                 gap: 6px;
+            }
+
+            body.battle-mode .flank.defense {
+                order: 1;
+            }
+
+            body.battle-mode .flank.attack {
+                order: 3;
             }
 
             body.battle-mode .round-indicator {
@@ -990,7 +1007,7 @@
 
             body.battle-mode .actions {
                 position: static;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(4, minmax(0, 1fr));
                 gap: 6px;
                 margin-top: 0;
                 padding: 0;
@@ -1005,19 +1022,34 @@
                 padding: 8px 4px;
             }
 
-            body.battle-mode #victoryBanner {
-                position: fixed;
-                left: 8px;
-                right: 8px;
-                top: max(8px, env(safe-area-inset-top));
-                z-index: 50;
-                margin-top: 0;
-                font-size: 0.9rem;
-                padding: 10px 12px;
+            body.battle-mode .mobile-only {
+                display: block;
             }
 
-            body.battle-mode #victoryBanner b {
-                font-size: 1.5rem;
+            body.battle-mode #battleLogPanel {
+                display: none !important;
+            }
+
+            body.battle-mode.log-open #battleLogPanel {
+                display: block !important;
+                position: fixed;
+                inset: max(8px, env(safe-area-inset-top)) 8px calc(62px + env(safe-area-inset-bottom)) 8px;
+                z-index: 60;
+                margin: 0;
+                padding: 12px;
+                border-radius: 14px;
+                background: rgba(8, 14, 25, 0.95);
+                border: 1px solid rgba(255, 255, 255, 0.22);
+            }
+
+            body.battle-mode.log-open #battleLogPanel .log-list {
+                max-height: 100%;
+                height: calc(100% - 30px);
+            }
+
+            body.battle-mode.log-open .battle-stage {
+                opacity: 0.22;
+                pointer-events: none;
             }
         }
     </style>
@@ -1108,9 +1140,8 @@
                 <button id="attackBtn" class="btn-attack">Attack Once</button>
                 <button id="attackToDeathBtn" class="btn-allin">Attack Until Death</button>
                 <button id="resetBtn" class="btn-reset">Reset Campaign</button>
+                <button id="toggleLogBtn" class="btn-log mobile-only">Battle Log</button>
             </div>
-
-            <div id="victoryBanner" class="banner"></div>
         </section>
 
         <section id="battleLogPanel" class="panel log" style="display: none;">
@@ -1128,6 +1159,7 @@
             defenseArmies: 10,
             battleLog: [],
             battleStarted: false,
+            logOpen: false,
             gameOver: false,
             autoMode: false,
             isAnimating: false,
@@ -1144,6 +1176,7 @@
             attackBtn: document.getElementById('attackBtn'),
             attackToDeathBtn: document.getElementById('attackToDeathBtn'),
             resetBtn: document.getElementById('resetBtn'),
+            toggleLogBtn: document.getElementById('toggleLogBtn'),
             statusChip: document.getElementById('statusChip'),
             attackDisplay: document.getElementById('attackDisplay'),
             defenseDisplay: document.getElementById('defenseDisplay'),
@@ -1163,7 +1196,6 @@
             defenseArmyVisual: document.getElementById('defenseArmyVisual'),
             attackVisualLabel: document.getElementById('attackVisualLabel'),
             defenseVisualLabel: document.getElementById('defenseVisualLabel'),
-            victoryBanner: document.getElementById('victoryBanner'),
             battleLogPanel: document.getElementById('battleLogPanel'),
             battleLogTitle: document.getElementById('battleLogTitle'),
             battleLog: document.getElementById('battleLog')
@@ -1272,6 +1304,14 @@
             el.classList.add('pulse');
         }
 
+        function setBattleLogOpen(open) {
+            const canOpen = isMobileViewport() && state.battleStarted && state.battleLog.length > 0;
+            state.logOpen = Boolean(open && canOpen);
+            document.body.classList.toggle('log-open', state.logOpen);
+            elements.toggleLogBtn.textContent = state.logOpen ? 'Close Log' : 'Battle Log';
+            elements.toggleLogBtn.setAttribute('aria-pressed', state.logOpen ? 'true' : 'false');
+        }
+
         function startBattleSession() {
             if (state.isAnimating || state.autoMode) return;
 
@@ -1280,6 +1320,7 @@
             state.defenseArmies = Math.max(1, parseInt(elements.defenseInput.value, 10) || 1);
             state.battleLog = [];
             state.battleStarted = true;
+            state.logOpen = false;
             state.gameOver = false;
             state.autoMode = false;
             state.isAnimating = false;
@@ -1293,9 +1334,8 @@
             elements.roundDefenseLoss.textContent = '0';
             elements.attackTray.innerHTML = '';
             elements.defenseTray.innerHTML = '';
-            elements.victoryBanner.className = 'banner';
-            elements.victoryBanner.innerHTML = '';
             document.body.classList.add('battle-mode');
+            setBattleLogOpen(false);
 
             refreshSummary();
             refreshBattleLog();
@@ -1391,8 +1431,13 @@
             elements.startBattleBtn.disabled = state.battleStarted || state.isAnimating || state.autoMode;
             elements.attackBtn.disabled = !canAttack || state.autoMode;
             elements.attackToDeathBtn.disabled = !canAttack || state.autoMode;
+            elements.toggleLogBtn.disabled = !state.battleStarted || state.battleLog.length === 0;
             elements.attackInput.disabled = state.battleStarted || state.gameOver || state.isAnimating || state.autoMode;
             elements.defenseInput.disabled = state.battleStarted || state.gameOver || state.isAnimating || state.autoMode;
+
+            if (!state.battleStarted || !isMobileViewport()) {
+                setBattleLogOpen(false);
+            }
 
             if (!state.battleStarted) {
                 elements.statusChip.textContent = 'Configure Forces';
@@ -1431,6 +1476,7 @@
                 elements.battleLogPanel.style.display = 'none';
                 elements.battleLog.innerHTML = '';
                 elements.battleLogTitle.textContent = 'Battle Log';
+                setBattleLogOpen(false);
                 return;
             }
 
@@ -1439,14 +1485,9 @@
             elements.battleLogTitle.textContent = `Battle Log (${state.battleLog.length} ${label})`;
         }
 
-        function showVictory(winner) {
+        function showVictory() {
             state.gameOver = true;
-            const attackerWon = winner === 'attacker';
-            elements.victoryBanner.className = `banner ${attackerWon ? 'attacker' : 'defender'}`;
-            elements.victoryBanner.innerHTML = `
-                <b>${attackerWon ? 'Attacker Victory' : 'Defender Holds'}</b>
-                ${state.attackArmies} attackers vs ${state.defenseArmies} defenders left on the map.
-            `;
+            setBattleLogOpen(false);
         }
 
         async function animateRound(result, speed) {
@@ -1541,9 +1582,9 @@
             }
 
             if (state.defenseArmies === 0) {
-                showVictory('attacker');
+                showVictory();
             } else if (state.attackArmies <= 1) {
-                showVictory('defender');
+                showVictory();
             }
 
             state.isAnimating = false;
@@ -1574,6 +1615,7 @@
             state.defenseArmies = 10;
             state.battleLog = [];
             state.battleStarted = false;
+            state.logOpen = false;
             state.gameOver = false;
             state.autoMode = false;
             state.isAnimating = false;
@@ -1585,11 +1627,10 @@
             elements.roundDefenseLoss.textContent = '0';
             elements.attackTray.innerHTML = '';
             elements.defenseTray.innerHTML = '';
-            elements.victoryBanner.className = 'banner';
-            elements.victoryBanner.innerHTML = '';
             elements.attackInput.value = '10';
             elements.defenseInput.value = '10';
             document.body.classList.remove('battle-mode');
+            setBattleLogOpen(false);
 
             refreshSummary();
             refreshBattleLog();
@@ -1614,6 +1655,10 @@
             fullReset();
         });
 
+        elements.toggleLogBtn.addEventListener('click', () => {
+            setBattleLogOpen(!state.logOpen);
+        });
+
         elements.attackInput.addEventListener('change', event => {
             if (state.isAnimating || state.autoMode) return;
             state.attackArmies = Math.max(2, parseInt(event.target.value, 10) || 2);
@@ -1631,6 +1676,7 @@
         });
 
         window.addEventListener('resize', () => {
+            setBattleLogOpen(state.logOpen);
             refreshSummary();
             refreshControls();
         });
