@@ -1411,6 +1411,7 @@
 
         const wheelControllers = {};
         let audioContext = null;
+        let audioUnlocked = false;
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
@@ -1425,6 +1426,24 @@
                 audioContext.resume().catch(() => {});
             }
             return audioContext;
+        }
+
+        function unlockAudio() {
+            const ctx = ensureAudioContext();
+            if (!ctx) return;
+
+            if (!audioUnlocked) {
+                const now = ctx.currentTime;
+                const source = ctx.createBufferSource();
+                source.buffer = ctx.createBuffer(1, 1, 22050);
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.0001, now);
+                source.connect(gain);
+                gain.connect(ctx.destination);
+                source.start(now);
+                source.stop(now + 0.01);
+                audioUnlocked = true;
+            }
         }
 
         function playTone(ctx, frequency, startOffset, duration, type, volume, slideTo = null) {
@@ -1450,17 +1469,17 @@
 
         function playAttackOutcomeSound(attackLosses, defenseLosses) {
             const ctx = ensureAudioContext();
-            if (!ctx) return;
+            if (!ctx || ctx.state !== 'running') return;
 
             const attackerSuccessful = defenseLosses > attackLosses;
             if (attackerSuccessful) {
-                playTone(ctx, 520, 0.00, 0.08, 'triangle', 0.045);
-                playTone(ctx, 710, 0.09, 0.09, 'triangle', 0.042);
+                playTone(ctx, 560, 0.00, 0.10, 'triangle', 0.065);
+                playTone(ctx, 780, 0.10, 0.11, 'triangle', 0.058);
                 return;
             }
 
-            playTone(ctx, 260, 0.00, 0.12, 'sawtooth', 0.038, 190);
-            playTone(ctx, 180, 0.09, 0.10, 'square', 0.032, 140);
+            playTone(ctx, 250, 0.00, 0.14, 'sawtooth', 0.055, 170);
+            playTone(ctx, 160, 0.11, 0.12, 'square', 0.047, 120);
         }
 
         function isMobileViewport() {
@@ -2053,20 +2072,22 @@
         }
 
         elements.attackBtn.addEventListener('click', async () => {
-            ensureAudioContext();
+            unlockAudio();
             await executeRound('normal', state.sessionToken);
         });
 
         elements.startBattleBtn.addEventListener('click', () => {
+            unlockAudio();
             startBattleSession();
         });
 
         elements.attackToDeathBtn.addEventListener('click', async () => {
-            ensureAudioContext();
+            unlockAudio();
             await executeUntilDeath();
         });
 
         elements.resetBtn.addEventListener('click', () => {
+            unlockAudio();
             fullReset();
         });
 
@@ -2100,6 +2121,12 @@
         refreshSummary();
         refreshBattleLog();
         refreshControls();
+
+        const unlockAudioOnGesture = () => {
+            unlockAudio();
+        };
+        window.addEventListener('pointerdown', unlockAudioOnGesture, { passive: true });
+        window.addEventListener('touchstart', unlockAudioOnGesture, { passive: true });
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
