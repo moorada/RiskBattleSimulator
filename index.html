@@ -284,22 +284,6 @@
             margin-top: 2px;
         }
 
-        .meta-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--ink-300);
-            font-size: 0.95rem;
-        }
-
-        .meta-line b {
-            color: var(--ink-100);
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            font-weight: 400;
-        }
-
         .battlefield {
             position: relative;
             padding: 24px;
@@ -1188,9 +1172,6 @@
             </div>
 
             <div class="panel control-card meta">
-                <div class="meta-line"><span>Skirmishes</span><b id="metaRounds">0</b></div>
-                <div class="meta-line"><span>Total Attacker Losses</span><b id="metaAttackLoss">0</b></div>
-                <div class="meta-line"><span>Total Defender Losses</span><b id="metaDefenseLoss">0</b></div>
                 <button id="startBattleBtn" class="btn-start setup-action">Start Battle</button>
             </div>
         </section>
@@ -1276,8 +1257,6 @@
             autoMode: false,
             isAnimating: false,
             round: 0,
-            totalAttackLosses: 0,
-            totalDefenseLosses: 0,
             sessionToken: 0
         };
 
@@ -1301,9 +1280,6 @@
             roundNumber: document.getElementById('roundNumber'),
             roundAttackLoss: document.getElementById('roundAttackLoss'),
             roundDefenseLoss: document.getElementById('roundDefenseLoss'),
-            metaRounds: document.getElementById('metaRounds'),
-            metaAttackLoss: document.getElementById('metaAttackLoss'),
-            metaDefenseLoss: document.getElementById('metaDefenseLoss'),
             battlefield: document.getElementById('battlefield'),
             impactFlash: document.getElementById('impactFlash'),
             attackTray: document.getElementById('attackTray'),
@@ -1596,8 +1572,6 @@
             state.autoMode = false;
             state.isAnimating = false;
             state.round = 0;
-            state.totalAttackLosses = 0;
-            state.totalDefenseLosses = 0;
 
             elements.attackInput.value = String(state.attackArmies);
             elements.defenseInput.value = String(state.defenseArmies);
@@ -1692,9 +1666,6 @@
             elements.arenaAttackArmies.textContent = state.attackArmies;
             elements.arenaDefenseArmies.textContent = state.defenseArmies;
             elements.roundNumber.textContent = state.round;
-            elements.metaRounds.textContent = state.round;
-            elements.metaAttackLoss.textContent = state.totalAttackLosses;
-            elements.metaDefenseLoss.textContent = state.totalDefenseLosses;
             if (!skipWheelSync) {
                 syncWheelsWithState();
             }
@@ -1836,8 +1807,6 @@
             state.attackArmies = result.attArmies;
             state.defenseArmies = result.defArmies;
             state.round += 1;
-            state.totalAttackLosses += result.attackLosses;
-            state.totalDefenseLosses += result.defenseLosses;
 
             const logEntry = {
                 round: state.round,
@@ -1899,8 +1868,6 @@
             state.autoMode = false;
             state.isAnimating = false;
             state.round = 0;
-            state.totalAttackLosses = 0;
-            state.totalDefenseLosses = 0;
 
             elements.roundAttackLoss.textContent = '0';
             elements.roundDefenseLoss.textContent = '0';
