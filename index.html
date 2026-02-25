@@ -11,21 +11,22 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <title>Risk Battle Simulator | War Room Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@700;800&family=Space+Grotesk:wght@400;500;700&display=swap');
 
         :root {
-            --bg-900: #070d18;
-            --bg-800: #0f1a2d;
-            --ink-100: #f2f6ff;
-            --ink-300: #b4c2de;
-            --accent-red: #ff4d4f;
-            --accent-red-soft: #ff8f92;
-            --accent-blue: #54a4ff;
-            --accent-blue-soft: #9bc9ff;
-            --accent-gold: #f6b84d;
-            --panel: rgba(16, 26, 44, 0.72);
-            --panel-border: rgba(155, 181, 226, 0.28);
-            --shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+            --bg-900: #131620;
+            --bg-800: #1e2433;
+            --ink-100: #fff7e9;
+            --ink-300: #dacdb5;
+            --accent-red: #d9483b;
+            --accent-red-soft: #ff8f6a;
+            --accent-blue: #3f84d8;
+            --accent-blue-soft: #8ac8ff;
+            --accent-green: #6fae61;
+            --accent-gold: #f0c76f;
+            --panel: rgba(26, 29, 41, 0.82);
+            --panel-border: rgba(240, 199, 111, 0.32);
+            --shadow: 0 18px 45px rgba(4, 5, 11, 0.52);
             --radius: 20px;
         }
 
@@ -38,7 +39,11 @@
         body {
             font-family: 'Space Grotesk', sans-serif;
             color: var(--ink-100);
-            background: radial-gradient(circle at 15% 20%, #1b3258 0%, #0b1526 38%, #060b16 100%);
+            background:
+                radial-gradient(circle at 18% 14%, rgba(238, 99, 77, 0.36), transparent 34%),
+                radial-gradient(circle at 82% 12%, rgba(74, 146, 229, 0.32), transparent 36%),
+                radial-gradient(circle at 50% 90%, rgba(111, 174, 97, 0.26), transparent 42%),
+                linear-gradient(135deg, #2a221b 0%, #1d2232 42%, #1f2d2f 100%);
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -54,16 +59,15 @@
 
         body::before {
             background:
-                radial-gradient(circle at 80% 18%, rgba(255, 77, 79, 0.2), transparent 30%),
-                radial-gradient(circle at 20% 85%, rgba(84, 164, 255, 0.2), transparent 32%),
-                linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-            background-size: auto, auto, 26px 26px, 26px 26px;
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06), transparent 60%),
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 2px, transparent 2px 14px),
+                repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 14px);
+            background-size: auto, 28px 28px, 28px 28px;
             animation: drift 16s linear infinite;
         }
 
         body::after {
-            background: radial-gradient(circle at center, rgba(3, 7, 12, 0), rgba(3, 7, 12, 0.78));
+            background: radial-gradient(circle at center, rgba(0, 0, 0, 0), rgba(7, 6, 4, 0.72));
             z-index: -1;
         }
 
@@ -82,7 +86,7 @@
         .panel {
             border: 1px solid var(--panel-border);
             background: var(--panel);
-            backdrop-filter: blur(14px);
+            backdrop-filter: blur(9px);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
@@ -90,35 +94,51 @@
         .header {
             padding: 24px 26px;
             display: flex;
-            justify-content: space-between;
-            gap: 18px;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
             align-items: center;
+            text-align: center;
+            border: 1px solid rgba(240, 199, 111, 0.45);
+            background:
+                linear-gradient(120deg, rgba(217, 72, 59, 0.18), transparent 30%),
+                linear-gradient(240deg, rgba(63, 132, 216, 0.2), transparent 32%),
+                rgba(24, 24, 30, 0.9);
         }
 
         .title-wrap h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 1.6px;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 2.6px;
             font-size: clamp(2.2rem, 4.5vw, 4rem);
-            line-height: 0.95;
-            color: #fff7df;
-            text-shadow: 0 0 24px rgba(246, 184, 77, 0.28);
+            line-height: 1;
+            background: linear-gradient(180deg, #ffe7aa 0%, #f0c76f 62%, #b78945 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 3px 18px rgba(240, 199, 111, 0.22);
+        }
+
+        .title-wrap {
+            text-align: center;
         }
 
         .title-wrap p {
             margin-top: 6px;
             color: var(--ink-300);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
         }
 
         .status-chip {
             border-radius: 999px;
-            padding: 10px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.24);
-            font-size: 0.84rem;
+            padding: 8px 18px;
+            border: 1px solid rgba(240, 199, 111, 0.45);
+            font-size: 0.78rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--ink-100);
-            background: linear-gradient(120deg, rgba(246, 184, 77, 0.24), rgba(255, 77, 79, 0.24));
+            letter-spacing: 1.2px;
+            color: #fff3d5;
+            background: linear-gradient(130deg, rgba(217, 72, 59, 0.42), rgba(63, 132, 216, 0.36));
             white-space: nowrap;
         }
 
@@ -133,9 +153,9 @@
         }
 
         .control-card h2 {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.4px;
             color: var(--ink-300);
         }
 
@@ -143,7 +163,7 @@
             display: block;
             margin-top: 8px;
             font-size: clamp(2rem, 4vw, 3rem);
-            font-family: 'Bebas Neue', sans-serif;
+            font-family: 'Cinzel', serif;
             letter-spacing: 1px;
             line-height: 1;
         }
@@ -153,18 +173,18 @@
             width: 100%;
             border: 1px solid rgba(255, 255, 255, 0.22);
             border-radius: 14px;
-            background: rgba(6, 11, 22, 0.7);
+            background: rgba(18, 20, 30, 0.85);
             padding: 10px 14px;
             font-size: 1.3rem;
             font-weight: 700;
-            color: var(--ink-100);
+            color: #fff3d5;
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .control-card input:focus {
             border-color: var(--accent-gold);
-            box-shadow: 0 0 0 3px rgba(246, 184, 77, 0.22);
+            box-shadow: 0 0 0 3px rgba(240, 199, 111, 0.22);
         }
 
         .mobile-wheel-picker {
@@ -265,19 +285,21 @@
         }
 
         .control-card.attack {
-            border: 1px solid rgba(255, 77, 79, 0.5);
-            background: linear-gradient(160deg, rgba(255, 77, 79, 0.14), rgba(18, 27, 46, 0.86));
+            border: 1px solid rgba(217, 72, 59, 0.56);
+            background: linear-gradient(150deg, rgba(217, 72, 59, 0.34), rgba(34, 20, 20, 0.86));
         }
 
         .control-card.defense {
-            border: 1px solid rgba(84, 164, 255, 0.52);
-            background: linear-gradient(160deg, rgba(84, 164, 255, 0.15), rgba(18, 27, 46, 0.86));
+            border: 1px solid rgba(63, 132, 216, 0.56);
+            background: linear-gradient(150deg, rgba(63, 132, 216, 0.35), rgba(18, 29, 38, 0.86));
         }
 
         .control-card.meta {
             display: grid;
             gap: 14px;
             align-content: center;
+            background: linear-gradient(150deg, rgba(111, 174, 97, 0.3), rgba(22, 28, 20, 0.88));
+            border: 1px solid rgba(111, 174, 97, 0.5);
         }
 
         .setup-action {
@@ -290,10 +312,13 @@
             justify-content: space-between;
             gap: 12px;
             padding: 12px 14px;
+            background:
+                linear-gradient(120deg, rgba(240, 199, 111, 0.22), transparent 32%),
+                rgba(25, 23, 24, 0.88);
         }
 
         .support-copy {
-            color: var(--ink-300);
+            color: #f4e4c1;
             font-size: 0.86rem;
         }
 
@@ -309,7 +334,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(240, 199, 111, 0.36);
             padding: 8px 10px;
             font-size: 0.8rem;
             font-weight: 700;
@@ -326,12 +351,12 @@
         }
 
         .support-link.github {
-            background: linear-gradient(140deg, #3c475f, #20263a);
+            background: linear-gradient(140deg, #4d5e77, #2a3248);
         }
 
         .support-link.coffee {
-            background: linear-gradient(140deg, #ffdc7b, #f6b84d);
-            color: #1d1605;
+            background: linear-gradient(140deg, #ffe489, #f2b141);
+            color: #221a07;
         }
 
         .battlefield {
@@ -346,7 +371,7 @@
             position: absolute;
             inset: -18% 10% auto;
             height: 150px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.09), transparent 70%);
+            background: radial-gradient(circle, rgba(240, 199, 111, 0.16), transparent 70%);
             z-index: -1;
         }
 
@@ -366,7 +391,7 @@
             top: 12px;
             bottom: 12px;
             width: 1px;
-            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+            background: linear-gradient(180deg, transparent, rgba(240, 199, 111, 0.34), transparent);
             transform: translateX(-50%);
             pointer-events: none;
         }
@@ -382,24 +407,25 @@
             text-transform: uppercase;
             letter-spacing: 1.1px;
             font-size: 0.72rem;
-            color: var(--ink-300);
+            color: #e6d4af;
         }
 
         .round-indicator b {
-            font-family: 'Bebas Neue', sans-serif;
+            font-family: 'Cinzel', serif;
             font-size: 2rem;
             font-weight: 400;
-            color: #fff;
+            color: #ffe8b0;
         }
 
         .flank {
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(240, 199, 111, 0.22);
             padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 10px;
             min-height: 236px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
         }
 
         .flank-header {
@@ -431,23 +457,23 @@
         }
 
         .flank.attack {
-            background: linear-gradient(170deg, rgba(255, 77, 79, 0.16), rgba(8, 13, 25, 0.8));
-            border-color: rgba(255, 77, 79, 0.35);
+            background: linear-gradient(165deg, rgba(217, 72, 59, 0.36), rgba(41, 21, 21, 0.85));
+            border-color: rgba(217, 72, 59, 0.46);
             transform: perspective(760px) rotateY(7deg);
         }
 
         .flank.attack .flank-count {
-            color: var(--accent-red-soft);
+            color: #ffd3bf;
         }
 
         .flank.defense {
-            background: linear-gradient(170deg, rgba(84, 164, 255, 0.16), rgba(8, 13, 25, 0.8));
-            border-color: rgba(84, 164, 255, 0.35);
+            background: linear-gradient(165deg, rgba(63, 132, 216, 0.36), rgba(17, 30, 42, 0.88));
+            border-color: rgba(63, 132, 216, 0.46);
             transform: perspective(760px) rotateY(-7deg);
         }
 
         .flank.defense .flank-count {
-            color: var(--accent-blue-soft);
+            color: #d7eeff;
         }
 
         .flank-meta-row {
@@ -466,17 +492,17 @@
 
         .center-core {
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(240, 199, 111, 0.3);
             padding: 12px;
-            background: linear-gradient(180deg, rgba(246, 184, 77, 0.08), rgba(8, 13, 25, 0.82));
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+            background: linear-gradient(180deg, rgba(240, 199, 111, 0.2), rgba(31, 27, 20, 0.88));
+            box-shadow: inset 0 0 0 1px rgba(240, 199, 111, 0.18);
         }
 
         .army-canvas {
             min-height: 156px;
             border-radius: 10px;
-            border: 1px dashed rgba(255, 255, 255, 0.16);
-            background: rgba(3, 8, 17, 0.45);
+            border: 1px dashed rgba(240, 199, 111, 0.32);
+            background: rgba(10, 11, 17, 0.48);
             padding: 8px;
             display: grid;
             grid-template-columns: repeat(auto-fill, 16px);
@@ -526,11 +552,11 @@
         }
 
         .army-unit.attack {
-            background: linear-gradient(150deg, #ff9da0, #d93b4e);
+            background: linear-gradient(150deg, #ffbf9c, #d9483b);
         }
 
         .army-unit.defense {
-            background: linear-gradient(150deg, #9ccaff, #3e73b5);
+            background: linear-gradient(150deg, #c5e8ff, #3f84d8);
         }
 
         .army-unit.casualty {
@@ -585,11 +611,11 @@
             font-size: 0.72rem;
             letter-spacing: 1px;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(255, 231, 176, 0.75);
             padding: 6px 8px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(240, 199, 111, 0.3);
+            background: rgba(240, 199, 111, 0.1);
         }
 
         .dice-arena {
@@ -601,14 +627,14 @@
             min-height: 190px;
             padding: 14px 8px;
             border-radius: 16px;
-            background: linear-gradient(90deg, rgba(255, 77, 79, 0.07), rgba(5, 9, 17, 0.6) 44%, rgba(84, 164, 255, 0.07));
-            border: 1px solid rgba(255, 255, 255, 0.13);
+            background: linear-gradient(90deg, rgba(217, 72, 59, 0.24), rgba(43, 33, 25, 0.72) 46%, rgba(63, 132, 216, 0.24));
+            border: 1px solid rgba(240, 199, 111, 0.26);
         }
 
         .tray {
             min-height: 146px;
             border-radius: 14px;
-            border: 1px dashed rgba(255, 255, 255, 0.22);
+            border: 1px dashed rgba(240, 199, 111, 0.36);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
             align-content: center;
@@ -631,11 +657,11 @@
         }
 
         .tray.attack {
-            background: rgba(255, 77, 79, 0.08);
+            background: rgba(217, 72, 59, 0.18);
         }
 
         .tray.defense {
-            background: rgba(84, 164, 255, 0.08);
+            background: rgba(63, 132, 216, 0.18);
         }
 
         .vs {
@@ -663,7 +689,7 @@
         }
 
         .die.attack { background: linear-gradient(160deg, #ff6a6d, #ac1c2b); }
-        .die.defense { background: linear-gradient(160deg, #77b8ff, #21518f); }
+        .die.defense { background: linear-gradient(160deg, #95d1ff, #2f66ac); }
 
         .die.rolling {
             animation: tumble 0.22s linear infinite;
@@ -748,7 +774,7 @@
         }
 
         .loss-box.attack { background: rgba(255, 77, 79, 0.12); }
-        .loss-box.defense { background: rgba(84, 164, 255, 0.12); }
+        .loss-box.defense { background: rgba(63, 132, 216, 0.14); }
 
         .pulse {
             animation: pulseLoss 0.5s ease;
@@ -791,30 +817,30 @@
         }
 
         .btn-attack {
-            background: linear-gradient(140deg, #ff5b5e, #d62636);
-            box-shadow: 0 10px 24px rgba(214, 38, 54, 0.35);
+            background: linear-gradient(140deg, #f07156, #ba372e);
+            box-shadow: 0 10px 24px rgba(186, 55, 46, 0.38);
         }
 
         .btn-allin {
-            background: linear-gradient(140deg, #ffbe4f, #ed7f31);
-            box-shadow: 0 10px 24px rgba(237, 127, 49, 0.3);
-            color: #101622;
+            background: linear-gradient(140deg, #f2d576, #e9a63f);
+            box-shadow: 0 10px 24px rgba(233, 166, 63, 0.34);
+            color: #1c1508;
         }
 
         .btn-reset {
-            background: linear-gradient(140deg, #7ea1d2, #3e5682);
-            box-shadow: 0 10px 24px rgba(62, 86, 130, 0.38);
+            background: linear-gradient(140deg, #89a7cc, #4b5f7a);
+            box-shadow: 0 10px 24px rgba(75, 95, 122, 0.38);
         }
 
         .btn-log {
-            background: linear-gradient(140deg, #8f7ed2, #5543a8);
-            box-shadow: 0 10px 24px rgba(85, 67, 168, 0.34);
+            background: linear-gradient(140deg, #7d8bd1, #4b58a6);
+            box-shadow: 0 10px 24px rgba(75, 88, 166, 0.34);
         }
 
         .btn-start {
-            background: linear-gradient(140deg, #7be588, #2fa54e);
-            box-shadow: 0 10px 24px rgba(47, 165, 78, 0.34);
-            color: #082113;
+            background: linear-gradient(140deg, #9ed976, #5f9d47);
+            box-shadow: 0 10px 24px rgba(95, 157, 71, 0.34);
+            color: #112108;
         }
 
         .mobile-only {
@@ -944,9 +970,10 @@
 
             .header {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center;
                 gap: 10px;
                 padding: 14px;
+                text-align: center;
             }
 
             .title-wrap h1 {
@@ -1224,8 +1251,8 @@
     <main class="app">
         <section class="panel header">
             <div class="title-wrap">
-                <h1>Risk Battle Simulator</h1>
-                <p>War Room Edition: official Risk dice rules, rebuilt with cinematic clash feedback.</p>
+                <h1>RISK Battle Arena</h1>
+                <p>Official dice rules, colorful war-table vibe, fast mobile-ready battles.</p>
             </div>
             <div id="statusChip" class="status-chip">Ready For Battle</div>
         </section>
@@ -1259,8 +1286,8 @@
         <section class="panel support-strip">
             <p class="support-copy">Ti piace il progetto? Supportalo con una stella o un caffè.</p>
             <div class="support-links">
-                <a class="support-link github" href="https://github.com/moorada/RiskBattleSimulator" target="_blank" rel="noopener noreferrer">⭐ Star on GitHub</a>
-                <a class="support-link coffee" href="https://www.buymeacoffee.com/moorada" target="_blank" rel="noopener noreferrer">☕ Buy me a coffee</a>
+                <a class="support-link github" href="https://github.com/moorada/RiskBattleSimulator" target="_blank" rel="noopener noreferrer">⭐ Lascia una stella</a>
+                <a class="support-link coffee" href="https://www.buymeacoffee.com/moorada" target="_blank" rel="noopener noreferrer">☕ Offrimi un caffè</a>
             </div>
         </section>
 
