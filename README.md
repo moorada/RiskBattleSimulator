@@ -49,9 +49,32 @@ Simply visit the **[Live Demo](https://moorada.github.io/RiskBattleSimulator/)**
 git clone https://github.com/moorada/RiskBattleSimulator.git
 ```
 
-2. Open `index.html` in your web browser
+2. Start a local server (PWA features require `http://`):
+```bash
+cd RiskBattleSimulator
+python3 -m http.server 8080
+```
 
-That's it! No build process, no dependencies to install.
+3. Open `http://localhost:8080`
+
+### Option 3: Deploy to GitHub Pages (HTTPS)
+
+This repository includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`.
+
+1. Push `main` to GitHub.
+2. In GitHub: `Settings` → `Pages` → under **Build and deployment** set **Source** to `GitHub Actions`.
+3. Re-run the latest workflow if needed from `Actions` → `Deploy To GitHub Pages`.
+4. Open your deployed URL:
+   - `https://<your-username>.github.io/RiskBattleSimulator/`
+
+### Install As App (PWA)
+
+Install from the HTTPS Pages URL:
+
+- **Android (Chrome/Edge)**: menu `⋮` → `Install app`
+- **iPhone (Safari)**: `Share` → `Add to Home Screen`
+
+If you only see `Add to Home` in Chrome and it opens with browser bars, remove that shortcut and install from the real **Install app** prompt.
 
 ## 🎯 Game Rules
 

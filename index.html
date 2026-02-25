@@ -1,128 +1,1063 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Battle Simulator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1526" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+    <title>Risk Battle Simulator | War Room Edition</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-900: #070d18;
+            --bg-800: #0f1a2d;
+            --ink-100: #f2f6ff;
+            --ink-300: #b4c2de;
+            --accent-red: #ff4d4f;
+            --accent-red-soft: #ff8f92;
+            --accent-blue: #54a4ff;
+            --accent-blue-soft: #9bc9ff;
+            --accent-gold: #f6b84d;
+            --panel: rgba(16, 26, 44, 0.72);
+            --panel-border: rgba(155, 181, 226, 0.28);
+            --shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+            --radius: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--ink-100);
+            background: radial-gradient(circle at 15% 20%, #1b3258 0%, #0b1526 38%, #060b16 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        body::before {
+            background:
+                radial-gradient(circle at 80% 18%, rgba(255, 77, 79, 0.2), transparent 30%),
+                radial-gradient(circle at 20% 85%, rgba(84, 164, 255, 0.2), transparent 32%),
+                linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: auto, auto, 26px 26px, 26px 26px;
+            animation: drift 16s linear infinite;
+        }
+
+        body::after {
+            background: radial-gradient(circle at center, rgba(3, 7, 12, 0), rgba(3, 7, 12, 0.78));
+            z-index: -1;
+        }
+
+        @keyframes drift {
+            from { transform: translate3d(0, 0, 0); }
+            to { transform: translate3d(-26px, -26px, 0); }
+        }
+
+        .app {
+            width: min(1180px, 94vw);
+            margin: 28px auto 40px;
+            display: grid;
+            gap: 18px;
+        }
+
+        .panel {
+            border: 1px solid var(--panel-border);
+            background: var(--panel);
+            backdrop-filter: blur(14px);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            padding: 24px 26px;
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .title-wrap h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1.6px;
+            font-size: clamp(2.2rem, 4.5vw, 4rem);
+            line-height: 0.95;
+            color: #fff7df;
+            text-shadow: 0 0 24px rgba(246, 184, 77, 0.28);
+        }
+
+        .title-wrap p {
+            margin-top: 6px;
+            color: var(--ink-300);
+            font-size: 0.95rem;
+        }
+
+        .status-chip {
+            border-radius: 999px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            font-size: 0.84rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--ink-100);
+            background: linear-gradient(120deg, rgba(246, 184, 77, 0.24), rgba(255, 77, 79, 0.24));
+            white-space: nowrap;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .control-card {
+            padding: 18px;
+        }
+
+        .control-card h2 {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--ink-300);
+        }
+
+        .control-card strong {
+            display: block;
+            margin-top: 8px;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        .control-card input {
+            margin-top: 14px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 14px;
+            background: rgba(6, 11, 22, 0.7);
+            padding: 10px 14px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--ink-100);
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .control-card input:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(246, 184, 77, 0.22);
+        }
+
+        .control-card.attack {
+            border: 1px solid rgba(255, 77, 79, 0.5);
+            background: linear-gradient(160deg, rgba(255, 77, 79, 0.14), rgba(18, 27, 46, 0.86));
+        }
+
+        .control-card.defense {
+            border: 1px solid rgba(84, 164, 255, 0.52);
+            background: linear-gradient(160deg, rgba(84, 164, 255, 0.15), rgba(18, 27, 46, 0.86));
+        }
+
+        .control-card.meta {
+            display: grid;
+            gap: 14px;
+            align-content: center;
+        }
+
+        .setup-action {
+            margin-top: 2px;
+        }
+
+        .meta-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--ink-300);
+            font-size: 0.95rem;
+        }
+
+        .meta-line b {
+            color: var(--ink-100);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            font-weight: 400;
+        }
+
+        .battlefield {
+            position: relative;
+            padding: 24px;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .battlefield::before {
+            content: '';
+            position: absolute;
+            inset: -18% 10% auto;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.09), transparent 70%);
+            z-index: -1;
+        }
+
+        .battle-stage {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) minmax(280px, 440px) minmax(220px, 1fr);
+            gap: 14px;
+            align-items: stretch;
+            margin-bottom: 16px;
+        }
+
+        .battle-stage::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 12px;
+            bottom: 12px;
+            width: 1px;
+            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .round-indicator {
+            text-align: center;
+            white-space: nowrap;
+            margin-bottom: 8px;
+        }
+
+        .round-indicator span {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            font-size: 0.72rem;
+            color: var(--ink-300);
+        }
+
+        .round-indicator b {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            font-weight: 400;
+            color: #fff;
+        }
+
+        .flank {
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 236px;
+        }
+
+        .flank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flank-label {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.78rem;
+            color: var(--ink-300);
+        }
+
+        .flank-count {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1;
+            letter-spacing: 1px;
+            font-weight: 400;
+        }
+
+        .flank-meta {
+            font-size: 0.82rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .flank.attack {
+            background: linear-gradient(170deg, rgba(255, 77, 79, 0.16), rgba(8, 13, 25, 0.8));
+            border-color: rgba(255, 77, 79, 0.35);
+            transform: perspective(760px) rotateY(7deg);
+        }
+
+        .flank.attack .flank-count {
+            color: var(--accent-red-soft);
+        }
+
+        .flank.defense {
+            background: linear-gradient(170deg, rgba(84, 164, 255, 0.16), rgba(8, 13, 25, 0.8));
+            border-color: rgba(84, 164, 255, 0.35);
+            transform: perspective(760px) rotateY(-7deg);
+        }
+
+        .flank.defense .flank-count {
+            color: var(--accent-blue-soft);
+        }
+
+        .flank-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flank-arrow {
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .center-core {
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 12px;
+            background: linear-gradient(180deg, rgba(246, 184, 77, 0.08), rgba(8, 13, 25, 0.82));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+        }
+
+        .army-canvas {
+            min-height: 156px;
+            border-radius: 10px;
+            border: 1px dashed rgba(255, 255, 255, 0.16);
+            background: rgba(3, 8, 17, 0.45);
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 16px);
+            gap: 6px;
+            align-content: flex-start;
+        }
+
+        .attack-canvas {
+            justify-content: end;
+        }
+
+        .defense-canvas {
+            justify-content: start;
+        }
+
+        .army-unit {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+            transition: transform 0.18s ease;
+        }
+
+        .army-unit::before,
+        .army-unit::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        .army-unit::before {
+            top: 2px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        .army-unit::after {
+            top: 7px;
+            width: 7px;
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        .army-unit.attack {
+            background: linear-gradient(150deg, #ff9da0, #d93b4e);
+        }
+
+        .army-unit.defense {
+            background: linear-gradient(150deg, #9ccaff, #3e73b5);
+        }
+
+        .army-unit.casualty {
+            z-index: 2;
+        }
+
+        .army-unit.casualty.attack {
+            animation: unitDownLeft 0.32s ease forwards;
+        }
+
+        .army-unit.casualty.defense {
+            animation: unitDownRight 0.32s ease forwards;
+        }
+
+        @keyframes unitDownLeft {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translate(-14px, 10px) rotate(-24deg) scale(0.38); opacity: 0; }
+        }
+
+        @keyframes unitDownRight {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translate(14px, 10px) rotate(24deg) scale(0.38); opacity: 0; }
+        }
+
+        .army-more {
+            min-width: 34px;
+            height: 14px;
+            padding: 0 4px;
+            border-radius: 7px;
+            display: grid;
+            place-items: center;
+            font-size: 0.64rem;
+            font-weight: 700;
+            color: var(--ink-100);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            background: rgba(255, 255, 255, 0.08);
+            align-self: center;
+        }
+
+        .army-more.attack {
+            justify-self: end;
+        }
+
+        .army-more.defense {
+            justify-self: start;
+        }
+
+        .army-empty {
+            grid-column: 1 / -1;
+            align-self: center;
+            justify-self: center;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.55);
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .dice-arena {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+            min-height: 190px;
+            padding: 14px 8px;
+            border-radius: 16px;
+            background: linear-gradient(90deg, rgba(255, 77, 79, 0.07), rgba(5, 9, 17, 0.6) 44%, rgba(84, 164, 255, 0.07));
+            border: 1px solid rgba(255, 255, 255, 0.13);
+        }
+
+        .tray {
+            min-height: 146px;
+            border-radius: 14px;
+            border: 1px dashed rgba(255, 255, 255, 0.22);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+            align-content: center;
+            align-items: center;
+            justify-items: center;
+            gap: 10px;
+            padding: 10px;
+            position: relative;
+        }
+
+        .tray::before {
+            content: attr(data-side);
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            font-size: 0.62rem;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.55);
+            text-transform: uppercase;
+        }
+
+        .tray.attack {
+            background: rgba(255, 77, 79, 0.08);
+        }
+
+        .tray.defense {
+            background: rgba(84, 164, 255, 0.08);
+        }
+
+        .vs {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.3rem;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.24);
+            user-select: none;
+        }
+
+        .die {
+            width: 64px;
+            height: 64px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: grid;
+            place-items: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            color: #fff;
+            position: relative;
+            transform-origin: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.38);
+        }
+
+        .die.attack { background: linear-gradient(160deg, #ff6a6d, #ac1c2b); }
+        .die.defense { background: linear-gradient(160deg, #77b8ff, #21518f); }
+
+        .die.rolling {
+            animation: tumble 0.22s linear infinite;
+        }
+
+        .die.win {
+            outline: 2px solid rgba(246, 184, 77, 0.94);
+            box-shadow: 0 0 0 3px rgba(246, 184, 77, 0.2), 0 16px 26px rgba(246, 184, 77, 0.26);
+            transform: translateY(-4px) scale(1.06);
+        }
+
+        .die.lose {
+            filter: grayscale(0.35) brightness(0.8);
+            transform: translateY(3px) scale(0.94);
+            opacity: 0.8;
+        }
+
+        @keyframes tumble {
+            0% { transform: rotate(0deg) scale(0.95); }
+            25% { transform: rotate(80deg) scale(1.05); }
+            50% { transform: rotate(150deg) scale(0.98); }
+            75% { transform: rotate(230deg) scale(1.02); }
+            100% { transform: rotate(320deg) scale(0.95); }
+        }
+
+        .impact-flash {
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            pointer-events: none;
+            opacity: 0;
+            background: radial-gradient(circle, rgba(246, 184, 77, 0.38) 0%, rgba(246, 184, 77, 0.02) 58%, transparent 80%);
+        }
+
+        .impact-flash.active {
+            animation: flash 0.45s ease-out;
+        }
+
+        @keyframes flash {
+            0% { opacity: 0.05; }
+            40% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .battlefield.shake {
+            animation: quake 0.34s linear;
+        }
+
+        @keyframes quake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(4px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
+            100% { transform: translateX(0); }
+        }
+
+        .loss-grid {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .loss-box {
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--ink-300);
+        }
+
+        .loss-box b {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            line-height: 1;
+            font-weight: 400;
+            color: #fff;
+        }
+
+        .loss-box.attack { background: rgba(255, 77, 79, 0.12); }
+        .loss-box.defense { background: rgba(84, 164, 255, 0.12); }
+
+        .pulse {
+            animation: pulseLoss 0.5s ease;
+        }
+
+        @keyframes pulseLoss {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.16); }
+            100% { transform: scale(1); }
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.16s ease, filter 0.16s ease, opacity 0.2s ease;
+            min-height: 46px;
+        }
+
+        button:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        button:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+            transform: none;
+            filter: grayscale(0.3);
+        }
+
+        .btn-attack {
+            background: linear-gradient(140deg, #ff5b5e, #d62636);
+            box-shadow: 0 10px 24px rgba(214, 38, 54, 0.35);
+        }
+
+        .btn-allin {
+            background: linear-gradient(140deg, #ffbe4f, #ed7f31);
+            box-shadow: 0 10px 24px rgba(237, 127, 49, 0.3);
+            color: #101622;
+        }
+
+        .btn-reset {
+            background: linear-gradient(140deg, #7ea1d2, #3e5682);
+            box-shadow: 0 10px 24px rgba(62, 86, 130, 0.38);
+        }
+
+        .btn-start {
+            background: linear-gradient(140deg, #7be588, #2fa54e);
+            box-shadow: 0 10px 24px rgba(47, 165, 78, 0.34);
+            color: #082113;
+        }
+
+        .banner {
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            font-size: 1rem;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .banner b {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            font-weight: 400;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .banner.attacker {
+            display: block;
+            background: linear-gradient(120deg, rgba(255, 77, 79, 0.18), rgba(255, 77, 79, 0.05));
+            border-color: rgba(255, 77, 79, 0.45);
+        }
+
+        .banner.defender {
+            display: block;
+            background: linear-gradient(120deg, rgba(84, 164, 255, 0.18), rgba(84, 164, 255, 0.05));
+            border-color: rgba(84, 164, 255, 0.45);
+        }
+
+        .log {
+            padding: 20px;
+        }
+
+        .log h3 {
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--ink-300);
+            font-size: 0.88rem;
+            margin-bottom: 12px;
+        }
+
+        .log-list {
+            list-style: none;
+            display: grid;
+            gap: 10px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .log-item {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            background: rgba(7, 13, 24, 0.75);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .log-round {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--ink-300);
+            min-width: 42px;
+        }
+
+        .log-dice {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: var(--ink-100);
+        }
+
+        .log-loss {
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--ink-300);
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
+            from { opacity: 0; transform: translateY(-6px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .battle-entry {
-            animation: fadeIn 0.3s ease-out;
+
+        @media (max-width: 980px) {
+            .control-grid,
+            .battle-stage {
+                grid-template-columns: 1fr;
+            }
+
+            .battle-stage::before {
+                display: none;
+            }
+
+            .flank.attack,
+            .flank.defense {
+                transform: none;
+                min-height: 180px;
+            }
+
+            .center-core {
+                order: -1;
+            }
+
+            .dice-arena {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                min-height: 0;
+            }
+
+            .vs {
+                display: none;
+            }
+
+            .actions {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .status-chip {
+                align-self: stretch;
+                text-align: center;
+            }
+
+            body.battle-mode {
+                overflow: hidden;
+            }
+
+            body.battle-mode .header,
+            body.battle-mode .control-grid,
+            body.battle-mode #battleLogPanel {
+                display: none;
+            }
+
+            body.battle-mode .app {
+                width: 100vw;
+                min-height: 100dvh;
+                margin: 0;
+                gap: 0;
+            }
+
+            body.battle-mode #battlefield {
+                min-height: 100dvh;
+                border-radius: 0;
+                border: none;
+                padding: 10px 10px calc(84px + env(safe-area-inset-bottom));
+            }
+
+            body.battle-mode #battlefield::before {
+                opacity: 0.7;
+            }
+
+            body.battle-mode .loss-grid {
+                display: none;
+            }
+
+            body.battle-mode .battle-stage {
+                margin-bottom: 0;
+                min-height: calc(100dvh - 150px);
+            }
+
+            body.battle-mode .actions {
+                position: fixed;
+                left: 8px;
+                right: 8px;
+                bottom: max(8px, env(safe-area-inset-bottom));
+                z-index: 40;
+                margin-top: 0;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                background: rgba(6, 11, 21, 0.88);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 14px;
+                padding: 8px;
+            }
+
+            body.battle-mode .actions button {
+                min-height: 42px;
+                font-size: 0.78rem;
+                padding: 10px 8px;
+            }
+
+            body.battle-mode .center-core {
+                order: -1;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-blue-900">
-    <div class="p-4 sm:p-8">
-        <div class="max-w-4xl mx-auto">
-            <!-- Header -->
-            <h1 class="text-4xl font-bold text-center text-white mb-8 flex items-center justify-center gap-3">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 3l-6 6m0 0V4m0 5h5M3 21l6-6m0 0v5m0-5H4"></path>
-                </svg>
-                Risk Battle Simulator
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-            </h1>
+<body>
+    <main class="app">
+        <section class="panel header">
+            <div class="title-wrap">
+                <h1>Risk Battle Simulator</h1>
+                <p>War Room Edition: official Risk dice rules, rebuilt with cinematic clash feedback.</p>
+            </div>
+            <div id="statusChip" class="status-chip">Ready For Battle</div>
+        </section>
 
-            <!-- Setup Area -->
-            <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-6 border border-white/20">
-                <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Attacker -->
-                    <div class="bg-red-500/20 rounded-lg p-4 border-2 border-red-500">
-                        <div class="flex items-center gap-2 mb-3">
-                            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 3l-6 6m0 0V4m0 5h5M3 21l6-6m0 0v5m0-5H4"></path>
-                            </svg>
-                            <h2 class="text-2xl font-bold text-white">Attacker</h2>
-                        </div>
-                        <input
-                            type="number"
-                            id="attackArmies"
-                            min="2"
-                            value="10"
-                            class="w-full px-4 py-3 text-2xl font-bold text-center bg-white/20 border-2 border-white/40 rounded-lg text-white placeholder-white/60 focus:outline-none focus:border-red-400"
-                        />
-                        <p class="text-white/80 text-sm mt-2 text-center">Armies available</p>
+        <section class="control-grid">
+            <div class="panel control-card attack">
+                <h2>Attacker Setup</h2>
+                <strong id="attackDisplay">10</strong>
+                <input id="attackArmies" type="number" min="2" value="10" />
+            </div>
+
+            <div class="panel control-card defense">
+                <h2>Defender Setup</h2>
+                <strong id="defenseDisplay">10</strong>
+                <input id="defenseArmies" type="number" min="1" value="10" />
+            </div>
+
+            <div class="panel control-card meta">
+                <div class="meta-line"><span>Skirmishes</span><b id="metaRounds">0</b></div>
+                <div class="meta-line"><span>Total Attacker Losses</span><b id="metaAttackLoss">0</b></div>
+                <div class="meta-line"><span>Total Defender Losses</span><b id="metaDefenseLoss">0</b></div>
+                <button id="startBattleBtn" class="btn-start setup-action">Start Battle View</button>
+            </div>
+        </section>
+
+        <section id="battlefield" class="panel battlefield">
+            <div class="battle-stage">
+                <article class="flank attack">
+                    <header class="flank-header">
+                        <h4 class="flank-label">Attacker Line</h4>
+                        <span id="arenaAttackArmies" class="flank-count">10</span>
+                    </header>
+                    <div class="flank-meta-row">
+                        <span id="attackVisualLabel" class="flank-meta">10 units</span>
+                        <span class="flank-arrow">Advance →</span>
                     </div>
+                    <div id="attackArmyVisual" class="army-canvas attack-canvas"></div>
+                </article>
 
-                    <!-- Defender -->
-                    <div class="bg-blue-500/20 rounded-lg p-4 border-2 border-blue-500">
-                        <div class="flex items-center gap-2 mb-3">
-                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                            <h2 class="text-2xl font-bold text-white">Defender</h2>
-                        </div>
-                        <input
-                            type="number"
-                            id="defenseArmies"
-                            min="1"
-                            value="10"
-                            class="w-full px-4 py-3 text-2xl font-bold text-center bg-white/20 border-2 border-white/40 rounded-lg text-white placeholder-white/60 focus:outline-none focus:border-blue-400"
-                        />
-                        <p class="text-white/80 text-sm mt-2 text-center">Armies available</p>
+                <div class="center-core">
+                    <div class="round-indicator">
+                        <span>Current Round</span>
+                        <b id="roundNumber">0</b>
+                    </div>
+                    <div class="dice-arena">
+                        <div id="attackTray" class="tray attack" data-side="Attack Dice"></div>
+                        <div class="vs">VS</div>
+                        <div id="defenseTray" class="tray defense" data-side="Defense Dice"></div>
+                        <div id="impactFlash" class="impact-flash"></div>
                     </div>
                 </div>
 
-                <!-- Buttons -->
-                <div class="grid md:grid-cols-3 gap-4 mt-6">
-                    <button
-                        id="attackBtn"
-                        class="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 active:scale-95"
-                    >
-                        ⚔️ Attack!
-                    </button>
-                    <button
-                        id="attackToDeathBtn"
-                        class="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 active:scale-95"
-                    >
-                        💀 Attack Until Death!
-                    </button>
-                    <button
-                        id="resetBtn"
-                        class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 active:scale-95"
-                    >
-                        🔄 Reset
-                    </button>
+                <article class="flank defense">
+                    <header class="flank-header">
+                        <h4 class="flank-label">Defender Line</h4>
+                        <span id="arenaDefenseArmies" class="flank-count">10</span>
+                    </header>
+                    <div class="flank-meta-row">
+                        <span class="flank-arrow">← Hold Line</span>
+                        <span id="defenseVisualLabel" class="flank-meta">10 units</span>
+                    </div>
+                    <div id="defenseArmyVisual" class="army-canvas defense-canvas"></div>
+                </article>
+            </div>
+
+            <div class="loss-grid">
+                <div class="loss-box attack">
+                    <span>Attack Losses This Round</span>
+                    <b id="roundAttackLoss">0</b>
+                </div>
+                <div class="loss-box defense">
+                    <span>Defense Losses This Round</span>
+                    <b id="roundDefenseLoss">0</b>
                 </div>
             </div>
 
-            <!-- Victory Banner -->
-            <div id="victoryBanner" class="hidden backdrop-blur-md rounded-xl p-6 mb-6 border-2 text-center"></div>
-
-            <!-- Battle Log -->
-            <div id="battleLogContainer" class="hidden bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <span id="battleLogTitle">Battle Log</span>
-                </h3>
-                <div id="battleLog" class="space-y-3 max-h-96 overflow-y-auto"></div>
+            <div class="actions">
+                <button id="attackBtn" class="btn-attack">Attack Once</button>
+                <button id="attackToDeathBtn" class="btn-allin">Attack Until Death</button>
+                <button id="resetBtn" class="btn-reset">Reset Campaign</button>
             </div>
-        </div>
-    </div>
+
+            <div id="victoryBanner" class="banner"></div>
+        </section>
+
+        <section id="battleLogPanel" class="panel log" style="display: none;">
+            <h3 id="battleLogTitle">Battle Log</h3>
+            <ul id="battleLog" class="log-list"></ul>
+        </section>
+    </main>
 
     <script>
-        let attackArmies = 10;
-        let defenseArmies = 10;
-        let battleLog = [];
-        let gameOver = false;
+        const MAX_ARMY_UNITS = 60;
 
-        const attackInput = document.getElementById('attackArmies');
-        const defenseInput = document.getElementById('defenseArmies');
-        const attackBtn = document.getElementById('attackBtn');
-        const attackToDeathBtn = document.getElementById('attackToDeathBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const victoryBanner = document.getElementById('victoryBanner');
-        const battleLogContainer = document.getElementById('battleLogContainer');
-        const battleLogElement = document.getElementById('battleLog');
-        const battleLogTitle = document.getElementById('battleLogTitle');
+        const state = {
+            attackArmies: 10,
+            defenseArmies: 10,
+            battleLog: [],
+            battleStarted: false,
+            gameOver: false,
+            autoMode: false,
+            isAnimating: false,
+            round: 0,
+            totalAttackLosses: 0,
+            totalDefenseLosses: 0,
+            sessionToken: 0
+        };
+
+        const elements = {
+            attackInput: document.getElementById('attackArmies'),
+            defenseInput: document.getElementById('defenseArmies'),
+            startBattleBtn: document.getElementById('startBattleBtn'),
+            attackBtn: document.getElementById('attackBtn'),
+            attackToDeathBtn: document.getElementById('attackToDeathBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            statusChip: document.getElementById('statusChip'),
+            attackDisplay: document.getElementById('attackDisplay'),
+            defenseDisplay: document.getElementById('defenseDisplay'),
+            arenaAttackArmies: document.getElementById('arenaAttackArmies'),
+            arenaDefenseArmies: document.getElementById('arenaDefenseArmies'),
+            roundNumber: document.getElementById('roundNumber'),
+            roundAttackLoss: document.getElementById('roundAttackLoss'),
+            roundDefenseLoss: document.getElementById('roundDefenseLoss'),
+            metaRounds: document.getElementById('metaRounds'),
+            metaAttackLoss: document.getElementById('metaAttackLoss'),
+            metaDefenseLoss: document.getElementById('metaDefenseLoss'),
+            battlefield: document.getElementById('battlefield'),
+            impactFlash: document.getElementById('impactFlash'),
+            attackTray: document.getElementById('attackTray'),
+            defenseTray: document.getElementById('defenseTray'),
+            attackArmyVisual: document.getElementById('attackArmyVisual'),
+            defenseArmyVisual: document.getElementById('defenseArmyVisual'),
+            attackVisualLabel: document.getElementById('attackVisualLabel'),
+            defenseVisualLabel: document.getElementById('defenseVisualLabel'),
+            victoryBanner: document.getElementById('victoryBanner'),
+            battleLogPanel: document.getElementById('battleLogPanel'),
+            battleLogTitle: document.getElementById('battleLogTitle'),
+            battleLog: document.getElementById('battleLog')
+        };
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function isMobileViewport() {
+            return window.matchMedia('(max-width: 980px)').matches;
+        }
+
+        async function enterImmersiveBattleView() {
+            if (!isMobileViewport()) return;
+
+            if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+                try {
+                    await document.documentElement.requestFullscreen();
+                } catch (_) {
+                    // Ignore fullscreen permission errors on mobile browsers.
+                }
+            }
+
+            if (screen.orientation && screen.orientation.lock) {
+                try {
+                    await screen.orientation.lock('landscape');
+                } catch (_) {
+                    // Ignore unsupported orientation lock.
+                }
+            }
+        }
+
+        async function exitImmersiveBattleView() {
+            if (document.exitFullscreen && document.fullscreenElement) {
+                try {
+                    await document.exitFullscreen();
+                } catch (_) {
+                    // Ignore exit fullscreen failures.
+                }
+            }
+        }
 
         function rollDice(count) {
             const dice = [];
@@ -132,10 +1067,9 @@
             return dice.sort((a, b) => b - a);
         }
 
-        function simulateBattle(attArm, defArm) {
-            const attackDiceCount = Math.min(3, attArm - 1);
-            const defenseDiceCount = Math.min(2, defArm);
-
+        function simulateBattle(attArmies, defArmies) {
+            const attackDiceCount = Math.min(3, attArmies - 1);
+            const defenseDiceCount = Math.min(2, defArmies);
             const attackDice = rollDice(attackDiceCount);
             const defenseDice = rollDice(defenseDiceCount);
 
@@ -143,7 +1077,6 @@
             let defenseLosses = 0;
 
             const comparisons = Math.min(attackDice.length, defenseDice.length);
-            
             for (let i = 0; i < comparisons; i++) {
                 if (attackDice[i] > defenseDice[i]) {
                     defenseLosses++;
@@ -157,162 +1090,421 @@
                 defenseDice,
                 attackLosses,
                 defenseLosses,
-                attArm: attArm - attackLosses,
-                defArm: defArm - defenseLosses
+                attArmies: attArmies - attackLosses,
+                defArmies: defArmies - defenseLosses
             };
         }
 
-        function updateUI() {
-            attackInput.value = attackArmies;
-            defenseInput.value = defenseArmies;
-            
-            const canAttack = !gameOver && attackArmies > 1 && defenseArmies > 0;
-            attackBtn.disabled = !canAttack;
-            attackToDeathBtn.disabled = !canAttack;
-            
-            attackInput.disabled = gameOver;
-            defenseInput.disabled = gameOver;
+        function createDie(value, side, rolling = false) {
+            const die = document.createElement('div');
+            die.className = `die ${side}${rolling ? ' rolling' : ''}`;
+            die.textContent = String(value);
+            return die;
         }
 
-        function showVictory(winner) {
-            gameOver = true;
-            const isAttacker = winner === 'attacker';
-            victoryBanner.className = `${isAttacker ? 'bg-red-500/30 border-red-500' : 'bg-blue-500/30 border-blue-500'} backdrop-blur-md rounded-xl p-6 mb-6 border-2 text-center`;
-            
-            const icon = isAttacker ? '🏆' : '🛡️';
-            const title = isAttacker ? 'Attacker Victory!' : 'Defender Holds!';
-            
-            victoryBanner.innerHTML = `
-                <div class="flex items-center justify-center gap-3 mb-2">
-                    <span class="text-4xl">${icon}</span>
-                    <h2 class="text-3xl font-bold text-white">${title}</h2>
-                    <span class="text-4xl">${icon}</span>
-                </div>
-                <p class="text-white/90 text-lg">
-                    Remaining armies: <span class="font-bold text-red-400">${attackArmies}</span> vs <span class="font-bold text-blue-400">${defenseArmies}</span>
-                </p>
-            `;
-            victoryBanner.classList.remove('hidden');
+        function renderRollingDice(attackCount, defenseCount) {
+            elements.attackTray.innerHTML = '';
+            elements.defenseTray.innerHTML = '';
+
+            for (let i = 0; i < attackCount; i++) {
+                elements.attackTray.appendChild(createDie('?', 'attack', true));
+            }
+            for (let i = 0; i < defenseCount; i++) {
+                elements.defenseTray.appendChild(createDie('?', 'defense', true));
+            }
+        }
+
+        function fillDiceValues(diceNodes, values) {
+            values.forEach((value, index) => {
+                const node = diceNodes[index];
+                if (!node) return;
+                node.textContent = String(value);
+                node.classList.remove('rolling');
+            });
+        }
+
+        function markDiceOutcome(result, attackNodes, defenseNodes) {
+            const comparisons = Math.min(result.attackDice.length, result.defenseDice.length);
+            for (let i = 0; i < comparisons; i++) {
+                const a = attackNodes[i];
+                const d = defenseNodes[i];
+                if (!a || !d) continue;
+                if (result.attackDice[i] > result.defenseDice[i]) {
+                    a.classList.add('win');
+                    d.classList.add('lose');
+                } else {
+                    a.classList.add('lose');
+                    d.classList.add('win');
+                }
+            }
+        }
+
+        function pulseElement(el) {
+            el.classList.remove('pulse');
+            void el.offsetWidth;
+            el.classList.add('pulse');
+        }
+
+        function startBattleSession() {
+            if (state.isAnimating || state.autoMode) return;
+
+            state.sessionToken += 1;
+            state.attackArmies = Math.max(2, parseInt(elements.attackInput.value, 10) || 2);
+            state.defenseArmies = Math.max(1, parseInt(elements.defenseInput.value, 10) || 1);
+            state.battleLog = [];
+            state.battleStarted = true;
+            state.gameOver = false;
+            state.autoMode = false;
+            state.isAnimating = false;
+            state.round = 0;
+            state.totalAttackLosses = 0;
+            state.totalDefenseLosses = 0;
+
+            elements.attackInput.value = String(state.attackArmies);
+            elements.defenseInput.value = String(state.defenseArmies);
+            elements.roundAttackLoss.textContent = '0';
+            elements.roundDefenseLoss.textContent = '0';
+            elements.attackTray.innerHTML = '';
+            elements.defenseTray.innerHTML = '';
+            elements.victoryBanner.className = 'banner';
+            elements.victoryBanner.innerHTML = '';
+            document.body.classList.add('battle-mode');
+
+            refreshSummary();
+            refreshBattleLog();
+            refreshControls();
+
+            void enterImmersiveBattleView();
+        }
+
+        function formatUnitsLabel(value) {
+            return `${value} unit${value === 1 ? '' : 's'}`;
+        }
+
+        function renderArmyFormation(side, armies) {
+            const container = side === 'attack' ? elements.attackArmyVisual : elements.defenseArmyVisual;
+            const label = side === 'attack' ? elements.attackVisualLabel : elements.defenseVisualLabel;
+            const visibleUnits = Math.min(MAX_ARMY_UNITS, armies);
+            const hiddenUnits = Math.max(0, armies - visibleUnits);
+
+            label.textContent = formatUnitsLabel(armies);
+            container.innerHTML = '';
+
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < visibleUnits; i++) {
+                const unit = document.createElement('div');
+                unit.className = `army-unit ${side}`;
+                fragment.appendChild(unit);
+            }
+
+            if (visibleUnits === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'army-empty';
+                empty.textContent = 'Line Broken';
+                fragment.appendChild(empty);
+            }
+
+            if (hiddenUnits > 0) {
+                const more = document.createElement('div');
+                more.className = `army-more ${side}`;
+                more.textContent = `+${hiddenUnits}`;
+                fragment.appendChild(more);
+            }
+
+            container.appendChild(fragment);
+        }
+
+        async function animateArmyCasualties(attackLosses, defenseLosses, token = state.sessionToken) {
+            const markCasualties = (side, losses) => {
+                if (losses <= 0) return;
+                const container = side === 'attack' ? elements.attackArmyVisual : elements.defenseArmyVisual;
+                const units = [...container.querySelectorAll(`.army-unit.${side}`)];
+                const casualtyCount = Math.min(losses, units.length);
+                const casualties = side === 'attack'
+                    ? units.slice(-casualtyCount)
+                    : units.slice(0, casualtyCount);
+                casualties.forEach((unit, index) => {
+                    unit.style.animationDelay = `${index * 45}ms`;
+                    unit.classList.add('casualty');
+                });
+            };
+
+            markCasualties('attack', attackLosses);
+            markCasualties('defense', defenseLosses);
+
+            if (attackLosses > 0 || defenseLosses > 0) {
+                await sleep(260);
+            }
+
+            return token === state.sessionToken;
+        }
+
+        function refreshSummary() {
+            elements.attackDisplay.textContent = state.attackArmies;
+            elements.defenseDisplay.textContent = state.defenseArmies;
+            elements.arenaAttackArmies.textContent = state.attackArmies;
+            elements.arenaDefenseArmies.textContent = state.defenseArmies;
+            elements.roundNumber.textContent = state.round;
+            elements.metaRounds.textContent = state.round;
+            elements.metaAttackLoss.textContent = state.totalAttackLosses;
+            elements.metaDefenseLoss.textContent = state.totalDefenseLosses;
+            renderArmyFormation('attack', state.attackArmies);
+            renderArmyFormation('defense', state.defenseArmies);
+        }
+
+        function refreshControls() {
+            const canAttack = state.battleStarted && !state.gameOver && !state.isAnimating && state.attackArmies > 1 && state.defenseArmies > 0;
+            elements.startBattleBtn.disabled = state.battleStarted || state.isAnimating || state.autoMode;
+            elements.attackBtn.disabled = !canAttack || state.autoMode;
+            elements.attackToDeathBtn.disabled = !canAttack || state.autoMode;
+            elements.attackInput.disabled = state.battleStarted || state.gameOver || state.isAnimating || state.autoMode;
+            elements.defenseInput.disabled = state.battleStarted || state.gameOver || state.isAnimating || state.autoMode;
+
+            if (!state.battleStarted) {
+                elements.statusChip.textContent = 'Configure Forces';
+            } else if (state.gameOver) {
+                elements.statusChip.textContent = 'Campaign Complete';
+            } else if (state.autoMode) {
+                elements.statusChip.textContent = 'Auto-Battle Running';
+            } else if (state.isAnimating) {
+                elements.statusChip.textContent = 'Resolving Attack';
+            } else if (state.attackArmies <= 1 || state.defenseArmies <= 0) {
+                elements.statusChip.textContent = 'No More Legal Attacks';
+            } else {
+                elements.statusChip.textContent = 'Ready For Battle';
+            }
         }
 
         function addBattleLogEntry(entry) {
-            const logEntry = document.createElement('div');
-            logEntry.className = 'bg-white/5 rounded-lg p-4 border border-white/10 battle-entry';
-            
-            const attackDiceHTML = entry.attackDice.map(die => 
-                `<div class="bg-red-600 text-white font-bold w-10 h-10 rounded flex items-center justify-center text-lg">${die}</div>`
-            ).join('');
-            
-            const defenseDiceHTML = entry.defenseDice.map(die => 
-                `<div class="bg-blue-600 text-white font-bold w-10 h-10 rounded flex items-center justify-center text-lg">${die}</div>`
-            ).join('');
-            
-            logEntry.innerHTML = `
-                <div class="flex items-center justify-between gap-4">
-                    <div class="flex-1 text-center">
-                        <p class="text-red-400 font-semibold mb-2">Attack</p>
-                        <div class="flex justify-center gap-2">${attackDiceHTML}</div>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-white/60 text-sm mb-2">Losses</p>
-                        <p class="text-red-400 font-bold">${entry.attackLosses}</p>
-                        <p class="text-white/40 text-xs my-1">vs</p>
-                        <p class="text-blue-400 font-bold">${entry.defenseLosses}</p>
-                    </div>
-                    <div class="flex-1 text-center">
-                        <p class="text-blue-400 font-semibold mb-2">Defense</p>
-                        <div class="flex justify-center gap-2">${defenseDiceHTML}</div>
-                    </div>
+            const item = document.createElement('li');
+            item.className = 'log-item';
+            item.innerHTML = `
+                <span class="log-round">#${entry.round}</span>
+                <div class="log-dice">
+                    <div>ATK [${entry.attackDice.join(', ')}]</div>
+                    <div>DEF [${entry.defenseDice.join(', ')}]</div>
+                </div>
+                <div class="log-loss">
+                    <div>A-${entry.attackLosses} | D-${entry.defenseLosses}</div>
+                    <div>${entry.remainingAttack} vs ${entry.remainingDefense}</div>
                 </div>
             `;
-            
-            battleLogElement.insertBefore(logEntry, battleLogElement.firstChild);
+            elements.battleLog.prepend(item);
         }
 
-        function updateBattleLog() {
-            battleLogTitle.textContent = `Battle Log (${battleLog.length} ${battleLog.length === 1 ? 'skirmish' : 'skirmishes'})`;
-            if (battleLog.length > 0) {
-                battleLogContainer.classList.remove('hidden');
+        function refreshBattleLog() {
+            if (state.battleLog.length === 0) {
+                elements.battleLogPanel.style.display = 'none';
+                elements.battleLog.innerHTML = '';
+                elements.battleLogTitle.textContent = 'Battle Log';
+                return;
             }
+
+            elements.battleLogPanel.style.display = 'block';
+            const label = state.battleLog.length === 1 ? 'skirmish' : 'skirmishes';
+            elements.battleLogTitle.textContent = `Battle Log (${state.battleLog.length} ${label})`;
         }
 
-        attackBtn.addEventListener('click', () => {
-            if (attackArmies <= 1 || defenseArmies <= 0) return;
+        function showVictory(winner) {
+            state.gameOver = true;
+            const attackerWon = winner === 'attacker';
+            elements.victoryBanner.className = `banner ${attackerWon ? 'attacker' : 'defender'}`;
+            elements.victoryBanner.innerHTML = `
+                <b>${attackerWon ? 'Attacker Victory' : 'Defender Holds'}</b>
+                ${state.attackArmies} attackers vs ${state.defenseArmies} defenders left on the map.
+            `;
+        }
 
-            const result = simulateBattle(attackArmies, defenseArmies);
-            
-            battleLog.push({
+        async function animateRound(result, speed) {
+            const attackCount = result.attackDice.length;
+            const defenseCount = result.defenseDice.length;
+            renderRollingDice(attackCount, defenseCount);
+
+            const ticks = speed === 'fast' ? 4 : 7;
+            const step = speed === 'fast' ? 55 : 70;
+
+            for (let t = 0; t < ticks; t++) {
+                const attackDiceNodes = [...elements.attackTray.children];
+                const defenseDiceNodes = [...elements.defenseTray.children];
+                attackDiceNodes.forEach(node => {
+                    node.textContent = String(Math.floor(Math.random() * 6) + 1);
+                });
+                defenseDiceNodes.forEach(node => {
+                    node.textContent = String(Math.floor(Math.random() * 6) + 1);
+                });
+                await sleep(step);
+            }
+
+            const finalAttackNodes = [...elements.attackTray.children];
+            const finalDefenseNodes = [...elements.defenseTray.children];
+            fillDiceValues(finalAttackNodes, result.attackDice);
+            fillDiceValues(finalDefenseNodes, result.defenseDice);
+            markDiceOutcome(result, finalAttackNodes, finalDefenseNodes);
+
+            elements.roundAttackLoss.textContent = result.attackLosses;
+            elements.roundDefenseLoss.textContent = result.defenseLosses;
+            pulseElement(elements.roundAttackLoss);
+            pulseElement(elements.roundDefenseLoss);
+
+            elements.impactFlash.classList.remove('active');
+            void elements.impactFlash.offsetWidth;
+            elements.impactFlash.classList.add('active');
+
+            elements.battlefield.classList.remove('shake');
+            void elements.battlefield.offsetWidth;
+            elements.battlefield.classList.add('shake');
+
+            await sleep(speed === 'fast' ? 230 : 400);
+        }
+
+        async function executeRound(speed = 'normal', token = state.sessionToken) {
+            if (!state.battleStarted || state.attackArmies <= 1 || state.defenseArmies <= 0 || state.isAnimating || state.gameOver) {
+                return;
+            }
+
+            state.isAnimating = true;
+            refreshControls();
+
+            const result = simulateBattle(state.attackArmies, state.defenseArmies);
+            await animateRound(result, speed);
+            if (token !== state.sessionToken) {
+                state.isAnimating = false;
+                refreshControls();
+                return;
+            }
+            const isStillValid = await animateArmyCasualties(result.attackLosses, result.defenseLosses, token);
+            if (!isStillValid) {
+                state.isAnimating = false;
+                refreshControls();
+                return;
+            }
+
+            state.attackArmies = result.attArmies;
+            state.defenseArmies = result.defArmies;
+            state.round += 1;
+            state.totalAttackLosses += result.attackLosses;
+            state.totalDefenseLosses += result.defenseLosses;
+
+            const logEntry = {
+                round: state.round,
                 attackDice: result.attackDice,
                 defenseDice: result.defenseDice,
                 attackLosses: result.attackLosses,
-                defenseLosses: result.defenseLosses
-            });
+                defenseLosses: result.defenseLosses,
+                remainingAttack: state.attackArmies,
+                remainingDefense: state.defenseArmies
+            };
 
-            addBattleLogEntry(battleLog[battleLog.length - 1]);
-            updateBattleLog();
+            state.battleLog.push(logEntry);
+            addBattleLogEntry(logEntry);
+            refreshBattleLog();
+            refreshSummary();
+            if (result.attackLosses > 0) {
+                pulseElement(elements.arenaAttackArmies);
+            }
+            if (result.defenseLosses > 0) {
+                pulseElement(elements.arenaDefenseArmies);
+            }
 
-            attackArmies = result.attArm;
-            defenseArmies = result.defArm;
-
-            if (defenseArmies === 0) {
+            if (state.defenseArmies === 0) {
                 showVictory('attacker');
-            } else if (attackArmies <= 1) {
+            } else if (state.attackArmies <= 1) {
                 showVictory('defender');
             }
 
-            updateUI();
-        });
+            state.isAnimating = false;
+            refreshControls();
+        }
 
-        attackToDeathBtn.addEventListener('click', () => {
-            let attArm = attackArmies;
-            let defArm = defenseArmies;
+        async function executeUntilDeath() {
+            if (!state.battleStarted || state.autoMode || state.gameOver) return;
 
-            while (attArm > 1 && defArm > 0) {
-                const result = simulateBattle(attArm, defArm);
-                battleLog.push({
-                    attackDice: result.attackDice,
-                    defenseDice: result.defenseDice,
-                    attackLosses: result.attackLosses,
-                    defenseLosses: result.defenseLosses
-                });
-                attArm = result.attArm;
-                defArm = result.defArm;
+            const runToken = state.sessionToken;
+            state.autoMode = true;
+            refreshControls();
+
+            while (state.autoMode && runToken === state.sessionToken && state.attackArmies > 1 && state.defenseArmies > 0 && !state.gameOver) {
+                await executeRound('fast', runToken);
+                await sleep(130);
             }
 
-            battleLogElement.innerHTML = '';
-            battleLog.forEach(entry => addBattleLogEntry(entry));
-            updateBattleLog();
+            if (runToken === state.sessionToken) {
+                state.autoMode = false;
+            }
+            refreshControls();
+        }
 
-            attackArmies = attArm;
-            defenseArmies = defArm;
-            showVictory(defenseArmies === 0 ? 'attacker' : 'defender');
-            updateUI();
+        function fullReset() {
+            state.sessionToken += 1;
+            state.attackArmies = 10;
+            state.defenseArmies = 10;
+            state.battleLog = [];
+            state.battleStarted = false;
+            state.gameOver = false;
+            state.autoMode = false;
+            state.isAnimating = false;
+            state.round = 0;
+            state.totalAttackLosses = 0;
+            state.totalDefenseLosses = 0;
+
+            elements.roundAttackLoss.textContent = '0';
+            elements.roundDefenseLoss.textContent = '0';
+            elements.attackTray.innerHTML = '';
+            elements.defenseTray.innerHTML = '';
+            elements.victoryBanner.className = 'banner';
+            elements.victoryBanner.innerHTML = '';
+            elements.attackInput.value = '10';
+            elements.defenseInput.value = '10';
+            document.body.classList.remove('battle-mode');
+
+            refreshSummary();
+            refreshBattleLog();
+            refreshControls();
+
+            void exitImmersiveBattleView();
+        }
+
+        elements.attackBtn.addEventListener('click', async () => {
+            await executeRound('normal', state.sessionToken);
         });
 
-        resetBtn.addEventListener('click', () => {
-            attackArmies = 10;
-            defenseArmies = 10;
-            battleLog = [];
-            gameOver = false;
-            
-            battleLogElement.innerHTML = '';
-            battleLogContainer.classList.add('hidden');
-            victoryBanner.classList.add('hidden');
-            
-            updateUI();
+        elements.startBattleBtn.addEventListener('click', () => {
+            startBattleSession();
         });
 
-        attackInput.addEventListener('change', (e) => {
-            attackArmies = Math.max(2, parseInt(e.target.value) || 2);
-            updateUI();
+        elements.attackToDeathBtn.addEventListener('click', async () => {
+            await executeUntilDeath();
         });
 
-        defenseInput.addEventListener('change', (e) => {
-            defenseArmies = Math.max(1, parseInt(e.target.value) || 1);
-            updateUI();
+        elements.resetBtn.addEventListener('click', () => {
+            fullReset();
         });
 
-        updateUI();
+        elements.attackInput.addEventListener('change', event => {
+            if (state.isAnimating || state.autoMode) return;
+            state.attackArmies = Math.max(2, parseInt(event.target.value, 10) || 2);
+            event.target.value = String(state.attackArmies);
+            refreshSummary();
+            refreshControls();
+        });
+
+        elements.defenseInput.addEventListener('change', event => {
+            if (state.isAnimating || state.autoMode) return;
+            state.defenseArmies = Math.max(1, parseInt(event.target.value, 10) || 1);
+            event.target.value = String(state.defenseArmies);
+            refreshSummary();
+            refreshControls();
+        });
+
+        refreshSummary();
+        refreshBattleLog();
+        refreshControls();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 </html>
