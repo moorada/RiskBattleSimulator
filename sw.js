@@ -1,4 +1,4 @@
-const CACHE_NAME = 'risk-warroom-v3';
+const CACHE_NAME = 'risk-warroom-v4';
 const APP_SHELL = [
   './',
   './index.html',

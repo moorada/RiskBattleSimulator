@@ -11,7 +11,7 @@
     "standalone"
   ],
   "prefer_related_applications": false,
-  "orientation": "landscape",
+  "orientation": "portrait",
   "background_color": "#0b1526",
   "theme_color": "#0b1526",
   "icons": [

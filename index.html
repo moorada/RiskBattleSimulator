@@ -769,51 +769,72 @@
         }
 
         @media (max-width: 980px) {
-            .control-grid,
-            .battle-stage {
-                grid-template-columns: 1fr;
+            html,
+            body {
+                height: 100dvh;
+                overflow: hidden;
             }
 
-            .battle-stage::before {
-                display: none;
+            body {
+                overscroll-behavior: none;
             }
 
-            .flank.attack,
-            .flank.defense {
-                transform: none;
-                min-height: 180px;
-            }
-
-            .center-core {
-                order: -1;
-            }
-
-            .dice-arena {
-                grid-template-columns: 1fr;
-                gap: 8px;
-                min-height: 0;
-            }
-
-            .vs {
-                display: none;
-            }
-
-            .actions {
-                grid-template-columns: 1fr;
+            .app {
+                width: 100vw;
+                height: 100dvh;
+                margin: 0;
+                padding: 10px;
+                gap: 10px;
+                overflow: hidden;
             }
 
             .header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 10px;
+                padding: 14px;
+            }
+
+            .title-wrap h1 {
+                font-size: clamp(1.8rem, 8vw, 2.4rem);
+            }
+
+            .title-wrap p {
+                font-size: 0.8rem;
             }
 
             .status-chip {
                 align-self: stretch;
                 text-align: center;
+                font-size: 0.74rem;
+                padding: 8px 10px;
             }
 
-            body.battle-mode {
-                overflow: hidden;
+            .control-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .control-card {
+                padding: 12px;
+            }
+
+            .control-card strong {
+                font-size: 2.1rem;
+            }
+
+            .control-card input {
+                font-size: 1.1rem;
+                padding: 8px 10px;
+            }
+
+            .setup-action {
+                margin-top: 6px;
+            }
+
+            body:not(.battle-mode) #battlefield,
+            body:not(.battle-mode) #battleLogPanel {
+                display: none;
             }
 
             body.battle-mode .header,
@@ -823,55 +844,180 @@
             }
 
             body.battle-mode .app {
-                width: 100vw;
-                min-height: 100dvh;
-                margin: 0;
+                padding: 0;
                 gap: 0;
             }
 
             body.battle-mode #battlefield {
+                height: 100dvh;
                 min-height: 100dvh;
                 border-radius: 0;
                 border: none;
-                padding: 10px 10px calc(84px + env(safe-area-inset-bottom));
+                box-shadow: none;
+                padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+                display: grid;
+                grid-template-rows: 1fr auto;
+                gap: 8px;
+                overflow: hidden;
             }
 
             body.battle-mode #battlefield::before {
-                opacity: 0.7;
+                opacity: 0.5;
+            }
+
+            body.battle-mode .battle-stage {
+                margin-bottom: 0;
+                min-height: 0;
+                height: 100%;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto 1fr;
+                gap: 8px;
+            }
+
+            body.battle-mode .battle-stage::before {
+                display: none;
+            }
+
+            body.battle-mode .center-core {
+                order: -1;
+                grid-column: 1 / -1;
+                padding: 8px;
+                min-height: 0;
+                display: grid;
+                grid-template-rows: auto 1fr;
+                gap: 6px;
+            }
+
+            body.battle-mode .round-indicator {
+                margin-bottom: 0;
+            }
+
+            body.battle-mode .round-indicator b {
+                font-size: 1.5rem;
+            }
+
+            body.battle-mode .dice-arena {
+                grid-template-columns: 1fr auto 1fr;
+                gap: 6px;
+                min-height: 0;
+                height: 100%;
+                padding: 8px 6px;
+            }
+
+            body.battle-mode .tray {
+                min-height: 84px;
+                padding: 18px 6px 6px;
+                gap: 6px;
+                grid-template-columns: repeat(3, minmax(32px, 1fr));
+            }
+
+            body.battle-mode .tray::before {
+                top: 4px;
+                left: 6px;
+                font-size: 0.56rem;
+            }
+
+            body.battle-mode .die {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                font-size: 1.4rem;
+            }
+
+            body.battle-mode .vs {
+                font-size: 1.8rem;
+            }
+
+            body.battle-mode .flank {
+                transform: none;
+                min-height: 0;
+                padding: 8px;
+                gap: 6px;
+            }
+
+            body.battle-mode .flank-label {
+                font-size: 0.62rem;
+            }
+
+            body.battle-mode .flank-count {
+                font-size: 1.7rem;
+            }
+
+            body.battle-mode .flank-meta {
+                font-size: 0.68rem;
+            }
+
+            body.battle-mode .flank-arrow {
+                display: none;
+            }
+
+            body.battle-mode .army-canvas {
+                min-height: 0;
+                height: 100%;
+                padding: 5px;
+                gap: 4px;
+                overflow: hidden;
+                grid-template-columns: repeat(auto-fill, 12px);
+            }
+
+            body.battle-mode .army-unit {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+            }
+
+            body.battle-mode .army-unit::before {
+                top: 1px;
+                width: 4px;
+                height: 4px;
+            }
+
+            body.battle-mode .army-unit::after {
+                top: 5px;
+                width: 5px;
+                height: 4px;
+            }
+
+            body.battle-mode .army-more {
+                min-width: 26px;
+                height: 12px;
+                font-size: 0.54rem;
             }
 
             body.battle-mode .loss-grid {
                 display: none;
             }
 
-            body.battle-mode .battle-stage {
-                margin-bottom: 0;
-                min-height: calc(100dvh - 150px);
-            }
-
             body.battle-mode .actions {
-                position: fixed;
-                left: 8px;
-                right: 8px;
-                bottom: max(8px, env(safe-area-inset-bottom));
-                z-index: 40;
-                margin-top: 0;
+                position: static;
                 grid-template-columns: repeat(3, minmax(0, 1fr));
-                background: rgba(6, 11, 21, 0.88);
-                backdrop-filter: blur(12px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 14px;
-                padding: 8px;
+                gap: 6px;
+                margin-top: 0;
+                padding: 0;
+                background: transparent;
+                border: none;
+                backdrop-filter: none;
             }
 
             body.battle-mode .actions button {
-                min-height: 42px;
-                font-size: 0.78rem;
-                padding: 10px 8px;
+                min-height: 40px;
+                font-size: 0.72rem;
+                padding: 8px 4px;
             }
 
-            body.battle-mode .center-core {
-                order: -1;
+            body.battle-mode #victoryBanner {
+                position: fixed;
+                left: 8px;
+                right: 8px;
+                top: max(8px, env(safe-area-inset-top));
+                z-index: 50;
+                margin-top: 0;
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
+
+            body.battle-mode #victoryBanner b {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -903,7 +1049,7 @@
                 <div class="meta-line"><span>Skirmishes</span><b id="metaRounds">0</b></div>
                 <div class="meta-line"><span>Total Attacker Losses</span><b id="metaAttackLoss">0</b></div>
                 <div class="meta-line"><span>Total Defender Losses</span><b id="metaDefenseLoss">0</b></div>
-                <button id="startBattleBtn" class="btn-start setup-action">Start Battle View</button>
+                <button id="startBattleBtn" class="btn-start setup-action">Start Battle</button>
             </div>
         </section>
 
@@ -975,6 +1121,7 @@
 
     <script>
         const MAX_ARMY_UNITS = 60;
+        const MOBILE_BATTLE_MAX_UNITS = 24;
 
         const state = {
             attackArmies: 10,
@@ -1032,32 +1179,11 @@
 
         async function enterImmersiveBattleView() {
             if (!isMobileViewport()) return;
-
-            if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-                try {
-                    await document.documentElement.requestFullscreen();
-                } catch (_) {
-                    // Ignore fullscreen permission errors on mobile browsers.
-                }
-            }
-
-            if (screen.orientation && screen.orientation.lock) {
-                try {
-                    await screen.orientation.lock('landscape');
-                } catch (_) {
-                    // Ignore unsupported orientation lock.
-                }
-            }
+            window.scrollTo(0, 0);
         }
 
         async function exitImmersiveBattleView() {
-            if (document.exitFullscreen && document.fullscreenElement) {
-                try {
-                    await document.exitFullscreen();
-                } catch (_) {
-                    // Ignore exit fullscreen failures.
-                }
-            }
+            window.scrollTo(0, 0);
         }
 
         function rollDice(count) {
@@ -1182,10 +1308,17 @@
             return `${value} unit${value === 1 ? '' : 's'}`;
         }
 
+        function getVisibleArmyUnitsLimit() {
+            if (isMobileViewport() && state.battleStarted) {
+                return MOBILE_BATTLE_MAX_UNITS;
+            }
+            return MAX_ARMY_UNITS;
+        }
+
         function renderArmyFormation(side, armies) {
             const container = side === 'attack' ? elements.attackArmyVisual : elements.defenseArmyVisual;
             const label = side === 'attack' ? elements.attackVisualLabel : elements.defenseVisualLabel;
-            const visibleUnits = Math.min(MAX_ARMY_UNITS, armies);
+            const visibleUnits = Math.min(getVisibleArmyUnitsLimit(), armies);
             const hiddenUnits = Math.max(0, armies - visibleUnits);
 
             label.textContent = formatUnitsLabel(armies);
@@ -1493,6 +1626,11 @@
             if (state.isAnimating || state.autoMode) return;
             state.defenseArmies = Math.max(1, parseInt(event.target.value, 10) || 1);
             event.target.value = String(state.defenseArmies);
+            refreshSummary();
+            refreshControls();
+        });
+
+        window.addEventListener('resize', () => {
             refreshSummary();
             refreshControls();
         });
