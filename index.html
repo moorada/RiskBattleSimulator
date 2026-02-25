@@ -490,7 +490,7 @@
             height: 172px;
             overflow-y: auto;
             scroll-snap-type: y mandatory;
-            padding: 64px 6px;
+            padding: var(--wheel-edge-padding, 64px) 6px;
             scrollbar-width: none;
             -ms-overflow-style: none;
             overscroll-behavior: contain;
@@ -1379,7 +1379,7 @@
             .army-wheel {
                 height: 100%;
                 min-height: 0;
-                padding: 44px 6px;
+                padding: var(--wheel-edge-padding, 44px) 6px;
             }
 
             .control-card.meta {
@@ -1954,13 +1954,59 @@
             }
         }
 
+        function updateWheelLayout(type) {
+            const controller = wheelControllers[type];
+            if (!controller) return;
+
+            const wheelHeight = controller.el.clientHeight;
+            if (wheelHeight <= 0) return;
+            const sidePadding = Math.max(0, Math.round((wheelHeight - WHEEL_ITEM_HEIGHT) / 2));
+            controller.el.style.setProperty('--wheel-edge-padding', `${sidePadding}px`);
+        }
+
+        function getWheelTargetTop(controller, value) {
+            const index = value - controller.min;
+            const item = controller.el.children[index];
+            if (!item) {
+                return index * WHEEL_ITEM_HEIGHT;
+            }
+
+            return item.offsetTop - (controller.el.clientHeight - item.offsetHeight) / 2;
+        }
+
+        function getClosestWheelValue(type) {
+            const controller = wheelControllers[type];
+            if (!controller) return null;
+
+            const centerY = controller.el.scrollTop + controller.el.clientHeight / 2;
+            let bestValue = controller.min;
+            let bestDistance = Number.POSITIVE_INFINITY;
+            const items = controller.el.children;
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const itemCenter = item.offsetTop + item.offsetHeight / 2;
+                const distance = Math.abs(itemCenter - centerY);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestValue = controller.min + i;
+                }
+            }
+
+            return bestValue;
+        }
+
+        function updateAllWheelsLayout() {
+            updateWheelLayout('attack');
+            updateWheelLayout('defense');
+        }
+
         function setWheelValue(type, value, smooth = false) {
             const controller = wheelControllers[type];
             if (!controller) return;
 
             const clamped = Math.max(controller.min, Math.min(controller.max, value));
-            const index = clamped - controller.min;
-            const targetTop = index * WHEEL_ITEM_HEIGHT;
+            const targetTop = getWheelTargetTop(controller, clamped);
 
             if (Math.abs(controller.el.scrollTop - targetTop) > 1) {
                 controller.locked = true;
@@ -1996,9 +2042,8 @@
         function snapWheel(type, smooth = false) {
             const controller = wheelControllers[type];
             if (!controller) return;
-            const index = Math.round(controller.el.scrollTop / WHEEL_ITEM_HEIGHT);
-            const clampedIndex = Math.max(0, Math.min(controller.max - controller.min, index));
-            const value = controller.min + clampedIndex;
+            const value = getClosestWheelValue(type);
+            if (value === null) return;
             setWheelValue(type, value, smooth);
             applyWheelValue(type, value);
         }
@@ -2023,6 +2068,7 @@
                 scrollRaf: 0,
                 snapTimer: 0
             };
+            updateWheelLayout(type);
 
             wheel.addEventListener('scroll', () => {
                 const controller = wheelControllers[type];
@@ -2033,9 +2079,8 @@
                 }
 
                 controller.scrollRaf = requestAnimationFrame(() => {
-                    const index = Math.round(controller.el.scrollTop / WHEEL_ITEM_HEIGHT);
-                    const clampedIndex = Math.max(0, Math.min(controller.max - controller.min, index));
-                    const value = controller.min + clampedIndex;
+                    const value = getClosestWheelValue(type);
+                    if (value === null) return;
                     highlightWheelItem(type, value);
                     applyWheelValue(type, value);
                 });
@@ -2058,6 +2103,7 @@
         function initializeWheels() {
             initializeWheel('attack');
             initializeWheel('defense');
+            updateAllWheelsLayout();
             setWheelValue('attack', state.attackArmies, false);
             setWheelValue('defense', state.defenseArmies, false);
         }
@@ -2496,6 +2542,7 @@
             setBattleLogOpen(false);
             setSupportModalOpen(false);
 
+            updateAllWheelsLayout();
             refreshSummary();
             refreshBattleLog();
             refreshControls();
@@ -2571,6 +2618,7 @@
 
         window.addEventListener('resize', () => {
             setBattleLogOpen(state.logOpen);
+            updateAllWheelsLayout();
             refreshSummary();
             refreshControls();
         });
