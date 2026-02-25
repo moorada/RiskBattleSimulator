@@ -1334,6 +1334,7 @@
         const MOBILE_BATTLE_MAX_UNITS = 24;
         const MAX_ARMIES = 100;
         const WHEEL_ITEM_HEIGHT = 44;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
 
         const state = {
             attackArmies: 10,
@@ -1382,9 +1383,57 @@
         };
 
         const wheelControllers = {};
+        let audioContext = null;
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function ensureAudioContext() {
+            if (!AudioCtx) return null;
+            if (!audioContext) {
+                audioContext = new AudioCtx();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().catch(() => {});
+            }
+            return audioContext;
+        }
+
+        function playTone(ctx, frequency, startOffset, duration, type, volume, slideTo = null) {
+            const now = ctx.currentTime + startOffset;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(frequency, now);
+            if (slideTo !== null) {
+                osc.frequency.linearRampToValueAtTime(slideTo, now + duration);
+            }
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + duration + 0.02);
+        }
+
+        function playAttackOutcomeSound(attackLosses, defenseLosses) {
+            const ctx = ensureAudioContext();
+            if (!ctx) return;
+
+            const attackerSuccessful = defenseLosses > attackLosses;
+            if (attackerSuccessful) {
+                playTone(ctx, 520, 0.00, 0.08, 'triangle', 0.045);
+                playTone(ctx, 710, 0.09, 0.09, 'triangle', 0.042);
+                return;
+            }
+
+            playTone(ctx, 260, 0.00, 0.12, 'sawtooth', 0.038, 190);
+            playTone(ctx, 180, 0.09, 0.10, 'square', 0.032, 140);
         }
 
         function isMobileViewport() {
@@ -1885,6 +1934,9 @@
                 refreshControls();
                 return;
             }
+
+            playAttackOutcomeSound(result.attackLosses, result.defenseLosses);
+
             const isStillValid = await animateArmyCasualties(result.attackLosses, result.defenseLosses, token);
             if (!isStillValid) {
                 state.isAnimating = false;
@@ -1974,6 +2026,7 @@
         }
 
         elements.attackBtn.addEventListener('click', async () => {
+            ensureAudioContext();
             await executeRound('normal', state.sessionToken);
         });
 
@@ -1982,6 +2035,7 @@
         });
 
         elements.attackToDeathBtn.addEventListener('click', async () => {
+            ensureAudioContext();
             await executeUntilDeath();
         });
 
