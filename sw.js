@@ -1,8 +1,10 @@
-const CACHE_NAME = 'risk-warroom-v2';
+const CACHE_NAME = 'risk-warroom-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
   './icons/icon-192.svg',
   './icons/icon-512.svg'
 ];
