@@ -284,6 +284,56 @@
             margin-top: 2px;
         }
 
+        .support-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+        }
+
+        .support-copy {
+            color: var(--ink-300);
+            font-size: 0.86rem;
+        }
+
+        .support-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .support-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            text-decoration: none;
+            color: #fff;
+            transition: transform 0.16s ease, filter 0.16s ease, border-color 0.2s ease;
+        }
+
+        .support-link:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.06);
+            border-color: rgba(246, 184, 77, 0.75);
+        }
+
+        .support-link.github {
+            background: linear-gradient(140deg, #3c475f, #20263a);
+        }
+
+        .support-link.coffee {
+            background: linear-gradient(140deg, #ffdc7b, #f6b84d);
+            color: #1d1605;
+        }
+
         .battlefield {
             position: relative;
             padding: 24px;
@@ -927,6 +977,19 @@
                 margin-top: 6px;
             }
 
+            .support-strip {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .support-copy {
+                text-align: center;
+            }
+
+            .support-links {
+                justify-content: center;
+            }
+
             body:not(.battle-mode) #battlefield,
             body:not(.battle-mode) #battleLogPanel {
                 display: none;
@@ -934,6 +997,7 @@
 
             body.battle-mode .header,
             body.battle-mode .control-grid,
+            body.battle-mode .support-strip,
             body.battle-mode #battleLogPanel {
                 display: none;
             }
@@ -1173,6 +1237,14 @@
 
             <div class="panel control-card meta">
                 <button id="startBattleBtn" class="btn-start setup-action">Start Battle</button>
+            </div>
+        </section>
+
+        <section class="panel support-strip">
+            <p class="support-copy">Ti piace il progetto? Supportalo con una stella o un caffè.</p>
+            <div class="support-links">
+                <a class="support-link github" href="https://github.com/moorada/RiskBattleSimulator" target="_blank" rel="noopener noreferrer">⭐ Star on GitHub</a>
+                <a class="support-link coffee" href="https://www.buymeacoffee.com/moorada" target="_blank" rel="noopener noreferrer">☕ Buy me a coffee</a>
             </div>
         </section>
 
