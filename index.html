@@ -167,6 +167,103 @@
             box-shadow: 0 0 0 3px rgba(246, 184, 77, 0.22);
         }
 
+        .mobile-wheel-picker {
+            display: none;
+            margin-top: 12px;
+            position: relative;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: linear-gradient(180deg, rgba(9, 17, 31, 0.95), rgba(7, 13, 25, 0.95));
+            overflow: hidden;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        .mobile-wheel-picker::before,
+        .mobile-wheel-picker::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 56px;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .mobile-wheel-picker::before {
+            top: 0;
+            background: linear-gradient(180deg, rgba(7, 13, 25, 0.96), rgba(7, 13, 25, 0));
+        }
+
+        .mobile-wheel-picker::after {
+            bottom: 0;
+            background: linear-gradient(0deg, rgba(7, 13, 25, 0.96), rgba(7, 13, 25, 0));
+        }
+
+        .wheel-focus-line {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: calc(50% - 22px);
+            height: 44px;
+            border-radius: 10px;
+            border-top: 1px solid rgba(246, 184, 77, 0.75);
+            border-bottom: 1px solid rgba(246, 184, 77, 0.75);
+            background: rgba(246, 184, 77, 0.08);
+            box-shadow: 0 0 18px rgba(246, 184, 77, 0.2);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .army-wheel {
+            height: 172px;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            padding: 64px 6px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overscroll-behavior: contain;
+            position: relative;
+            z-index: 1;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .army-wheel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .wheel-item {
+            height: 44px;
+            scroll-snap-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+            font-size: 1.7rem;
+            color: rgba(196, 210, 239, 0.38);
+            transition: transform 0.18s ease, color 0.18s ease, text-shadow 0.18s ease;
+            user-select: none;
+        }
+
+        .wheel-item.near {
+            color: rgba(226, 236, 255, 0.78);
+        }
+
+        .wheel-item.active {
+            color: #fff8df;
+            transform: scale(1.12);
+            text-shadow: 0 0 18px rgba(246, 184, 77, 0.5);
+        }
+
+        .mobile-wheel-picker.disabled {
+            opacity: 0.48;
+            filter: grayscale(0.25);
+        }
+
+        .mobile-wheel-picker.disabled .army-wheel {
+            pointer-events: none;
+        }
+
         .control-card.attack {
             border: 1px solid rgba(255, 77, 79, 0.5);
             background: linear-gradient(160deg, rgba(255, 77, 79, 0.14), rgba(18, 27, 46, 0.86));
@@ -835,6 +932,11 @@
             .control-card input {
                 font-size: 1.1rem;
                 padding: 8px 10px;
+                display: none;
+            }
+
+            .mobile-wheel-picker {
+                display: block;
             }
 
             .setup-action {
@@ -1068,13 +1170,21 @@
             <div class="panel control-card attack">
                 <h2>Attacker Setup</h2>
                 <strong id="attackDisplay">10</strong>
-                <input id="attackArmies" type="number" min="2" value="10" />
+                <input id="attackArmies" type="number" min="2" max="100" value="10" />
+                <div id="attackWheelPicker" class="mobile-wheel-picker">
+                    <div class="wheel-focus-line"></div>
+                    <div id="attackWheel" class="army-wheel" role="listbox" aria-label="Attacker armies picker"></div>
+                </div>
             </div>
 
             <div class="panel control-card defense">
                 <h2>Defender Setup</h2>
                 <strong id="defenseDisplay">10</strong>
-                <input id="defenseArmies" type="number" min="1" value="10" />
+                <input id="defenseArmies" type="number" min="1" max="100" value="10" />
+                <div id="defenseWheelPicker" class="mobile-wheel-picker">
+                    <div class="wheel-focus-line"></div>
+                    <div id="defenseWheel" class="army-wheel" role="listbox" aria-label="Defender armies picker"></div>
+                </div>
             </div>
 
             <div class="panel control-card meta">
@@ -1153,6 +1263,8 @@
     <script>
         const MAX_ARMY_UNITS = 60;
         const MOBILE_BATTLE_MAX_UNITS = 24;
+        const MAX_ARMIES = 100;
+        const WHEEL_ITEM_HEIGHT = 44;
 
         const state = {
             attackArmies: 10,
@@ -1172,6 +1284,10 @@
         const elements = {
             attackInput: document.getElementById('attackArmies'),
             defenseInput: document.getElementById('defenseArmies'),
+            attackWheelPicker: document.getElementById('attackWheelPicker'),
+            defenseWheelPicker: document.getElementById('defenseWheelPicker'),
+            attackWheel: document.getElementById('attackWheel'),
+            defenseWheel: document.getElementById('defenseWheel'),
             startBattleBtn: document.getElementById('startBattleBtn'),
             attackBtn: document.getElementById('attackBtn'),
             attackToDeathBtn: document.getElementById('attackToDeathBtn'),
@@ -1201,6 +1317,8 @@
             battleLog: document.getElementById('battleLog')
         };
 
+        const wheelControllers = {};
+
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -1216,6 +1334,159 @@
 
         async function exitImmersiveBattleView() {
             window.scrollTo(0, 0);
+        }
+
+        function clampAttackArmies(value) {
+            return Math.max(2, Math.min(MAX_ARMIES, value));
+        }
+
+        function clampDefenseArmies(value) {
+            return Math.max(1, Math.min(MAX_ARMIES, value));
+        }
+
+        function getWheelConfig(type) {
+            if (type === 'attack') {
+                return {
+                    el: elements.attackWheel,
+                    picker: elements.attackWheelPicker,
+                    min: 2,
+                    max: MAX_ARMIES
+                };
+            }
+
+            return {
+                el: elements.defenseWheel,
+                picker: elements.defenseWheelPicker,
+                min: 1,
+                max: MAX_ARMIES
+            };
+        }
+
+        function highlightWheelItem(type, value) {
+            const controller = wheelControllers[type];
+            if (!controller) return;
+            const items = controller.el.children;
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const itemValue = Number(item.dataset.value);
+                const distance = Math.abs(itemValue - value);
+                item.classList.toggle('active', distance === 0);
+                item.classList.toggle('near', distance === 1);
+            }
+        }
+
+        function setWheelValue(type, value, smooth = false) {
+            const controller = wheelControllers[type];
+            if (!controller) return;
+
+            const clamped = Math.max(controller.min, Math.min(controller.max, value));
+            const index = clamped - controller.min;
+            const targetTop = index * WHEEL_ITEM_HEIGHT;
+
+            if (Math.abs(controller.el.scrollTop - targetTop) > 1) {
+                controller.locked = true;
+                controller.el.scrollTo({
+                    top: targetTop,
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
+                window.setTimeout(() => {
+                    controller.locked = false;
+                }, smooth ? 220 : 0);
+            }
+
+            highlightWheelItem(type, clamped);
+        }
+
+        function applyWheelValue(type, value) {
+            if (type === 'attack') {
+                const nextValue = clampAttackArmies(value);
+                if (state.attackArmies === nextValue) return;
+                state.attackArmies = nextValue;
+                elements.attackInput.value = String(nextValue);
+            } else {
+                const nextValue = clampDefenseArmies(value);
+                if (state.defenseArmies === nextValue) return;
+                state.defenseArmies = nextValue;
+                elements.defenseInput.value = String(nextValue);
+            }
+
+            refreshSummary(true);
+            refreshControls();
+        }
+
+        function snapWheel(type, smooth = false) {
+            const controller = wheelControllers[type];
+            if (!controller) return;
+            const index = Math.round(controller.el.scrollTop / WHEEL_ITEM_HEIGHT);
+            const clampedIndex = Math.max(0, Math.min(controller.max - controller.min, index));
+            const value = controller.min + clampedIndex;
+            setWheelValue(type, value, smooth);
+            applyWheelValue(type, value);
+        }
+
+        function initializeWheel(type) {
+            const config = getWheelConfig(type);
+            const wheel = config.el;
+            if (!wheel) return;
+
+            wheel.innerHTML = '';
+            for (let value = config.min; value <= config.max; value++) {
+                const item = document.createElement('div');
+                item.className = 'wheel-item';
+                item.dataset.value = String(value);
+                item.textContent = String(value);
+                wheel.appendChild(item);
+            }
+
+            wheelControllers[type] = {
+                ...config,
+                locked: false,
+                scrollRaf: 0,
+                snapTimer: 0
+            };
+
+            wheel.addEventListener('scroll', () => {
+                const controller = wheelControllers[type];
+                if (!controller || controller.locked) return;
+
+                if (controller.scrollRaf) {
+                    cancelAnimationFrame(controller.scrollRaf);
+                }
+
+                controller.scrollRaf = requestAnimationFrame(() => {
+                    const index = Math.round(controller.el.scrollTop / WHEEL_ITEM_HEIGHT);
+                    const clampedIndex = Math.max(0, Math.min(controller.max - controller.min, index));
+                    const value = controller.min + clampedIndex;
+                    highlightWheelItem(type, value);
+                    applyWheelValue(type, value);
+                });
+
+                window.clearTimeout(controller.snapTimer);
+                controller.snapTimer = window.setTimeout(() => {
+                    snapWheel(type, true);
+                }, 90);
+            }, { passive: true });
+
+            wheel.addEventListener('click', event => {
+                const item = event.target.closest('.wheel-item');
+                if (!item) return;
+                const value = Number(item.dataset.value);
+                setWheelValue(type, value, true);
+                applyWheelValue(type, value);
+            });
+        }
+
+        function initializeWheels() {
+            initializeWheel('attack');
+            initializeWheel('defense');
+            setWheelValue('attack', state.attackArmies, false);
+            setWheelValue('defense', state.defenseArmies, false);
+        }
+
+        function syncWheelsWithState() {
+            setWheelValue('attack', state.attackArmies, false);
+            setWheelValue('defense', state.defenseArmies, false);
         }
 
         function rollDice(count) {
@@ -1316,8 +1587,8 @@
             if (state.isAnimating || state.autoMode) return;
 
             state.sessionToken += 1;
-            state.attackArmies = Math.max(2, parseInt(elements.attackInput.value, 10) || 2);
-            state.defenseArmies = Math.max(1, parseInt(elements.defenseInput.value, 10) || 1);
+            state.attackArmies = clampAttackArmies(parseInt(elements.attackInput.value, 10) || 2);
+            state.defenseArmies = clampDefenseArmies(parseInt(elements.defenseInput.value, 10) || 1);
             state.battleLog = [];
             state.battleStarted = true;
             state.logOpen = false;
@@ -1413,7 +1684,9 @@
             return token === state.sessionToken;
         }
 
-        function refreshSummary() {
+        function refreshSummary(skipWheelSync = false) {
+            elements.attackInput.value = String(state.attackArmies);
+            elements.defenseInput.value = String(state.defenseArmies);
             elements.attackDisplay.textContent = state.attackArmies;
             elements.defenseDisplay.textContent = state.defenseArmies;
             elements.arenaAttackArmies.textContent = state.attackArmies;
@@ -1422,6 +1695,9 @@
             elements.metaRounds.textContent = state.round;
             elements.metaAttackLoss.textContent = state.totalAttackLosses;
             elements.metaDefenseLoss.textContent = state.totalDefenseLosses;
+            if (!skipWheelSync) {
+                syncWheelsWithState();
+            }
             renderArmyFormation('attack', state.attackArmies);
             renderArmyFormation('defense', state.defenseArmies);
         }
@@ -1434,6 +1710,9 @@
             elements.toggleLogBtn.disabled = !state.battleStarted || state.battleLog.length === 0;
             elements.attackInput.disabled = state.battleStarted || state.gameOver || state.isAnimating || state.autoMode;
             elements.defenseInput.disabled = state.battleStarted || state.gameOver || state.isAnimating || state.autoMode;
+            const setupLocked = state.battleStarted || state.gameOver || state.isAnimating || state.autoMode;
+            elements.attackWheelPicker.classList.toggle('disabled', setupLocked);
+            elements.defenseWheelPicker.classList.toggle('disabled', setupLocked);
 
             if (!state.battleStarted || !isMobileViewport()) {
                 setBattleLogOpen(false);
@@ -1661,7 +1940,7 @@
 
         elements.attackInput.addEventListener('change', event => {
             if (state.isAnimating || state.autoMode) return;
-            state.attackArmies = Math.max(2, parseInt(event.target.value, 10) || 2);
+            state.attackArmies = clampAttackArmies(parseInt(event.target.value, 10) || 2);
             event.target.value = String(state.attackArmies);
             refreshSummary();
             refreshControls();
@@ -1669,7 +1948,7 @@
 
         elements.defenseInput.addEventListener('change', event => {
             if (state.isAnimating || state.autoMode) return;
-            state.defenseArmies = Math.max(1, parseInt(event.target.value, 10) || 1);
+            state.defenseArmies = clampDefenseArmies(parseInt(event.target.value, 10) || 1);
             event.target.value = String(state.defenseArmies);
             refreshSummary();
             refreshControls();
@@ -1681,6 +1960,7 @@
             refreshControls();
         });
 
+        initializeWheels();
         refreshSummary();
         refreshBattleLog();
         refreshControls();
